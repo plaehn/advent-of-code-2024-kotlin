@@ -20,4 +20,18 @@ class Day01Test {
 
         assertThat(Day01(lines).solvePart1()).isEqualTo(2970687)
     }
+
+    @Test
+    fun `Part 2 Test Input`() {
+        val lines = this::class.java.readLines("01_test.txt")
+
+        assertThat(Day01(lines).solvePart2()).isEqualTo(31)
+    }
+
+    @Test
+    fun `Part 2 Puzzle Input`() {
+        val lines = this::class.java.readLines("01.txt")
+
+        assertThat(Day01(lines).solvePart2()).isEqualTo(23963899)
+    }
 }
