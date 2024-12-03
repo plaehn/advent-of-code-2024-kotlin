@@ -23,15 +23,15 @@ class Day03Test {
 
     @Test
     fun `Part 2 Test Input`() {
-        val lines = this::class.java.slurp("03_test.txt")
+        val lines = this::class.java.slurp("03_part2_test.txt")
 
-        assertThat(Day03(lines).solvePart2()).isEqualTo(-1)
+        assertThat(Day03(lines).solvePart2()).isEqualTo(48)
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
         val lines = this::class.java.slurp("03.txt")
 
-        assertThat(Day03(lines).solvePart2()).isEqualTo(-1)
+        assertThat(Day03(lines).solvePart2()).isEqualTo(108830766)
     }
 }

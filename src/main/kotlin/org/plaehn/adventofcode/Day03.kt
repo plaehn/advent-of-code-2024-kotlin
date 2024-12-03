@@ -11,7 +11,32 @@ class Day03(
             .sum()
 
     fun solvePart2(): Int {
-        TODO()
+        var multiply = true
+        return "do\\(\\)|don't\\(\\)|mul\\((\\d{1,3}),(\\d{1,3})\\)"
+            .toRegex()
+            .findAll(input)
+            .map { op ->
+                when (op.value) {
+                    "do()" -> {
+                        multiply = true
+                        0
+                    }
+
+                    "don't()" -> {
+                        multiply = false
+                        0
+                    }
+
+                    else -> {
+                        if (multiply) {
+                            op.groupValues[1].toInt() * op.groupValues[2].toInt()
+                        } else {
+                            0
+                        }
+                    }
+                }
+            }
+            .sum()
     }
 }
 
