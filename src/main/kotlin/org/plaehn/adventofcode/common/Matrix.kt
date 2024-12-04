@@ -1,5 +1,8 @@
 package org.plaehn.adventofcode.common
 
+import kotlin.math.abs
+
+
 data class Matrix<T>(
     private val matrix: List<MutableList<T>>,
     private val defaultValue: T
@@ -47,6 +50,39 @@ data class Matrix<T>(
             }
         }
         return Matrix(transposed, defaultValue)
+    }
+
+    fun transpose45DegreeClockwise(): Matrix<T> {
+        require(width() == height()) { "Works only if width equals height" }
+
+        val newHeight = 2 * height() - 1
+        val newRows = (0..<newHeight).map { newRowIndex -> createNewRow(newRowIndex) }
+        return fromRows(newRows, defaultValue)
+    }
+
+    private fun createNewRow(newRowIndex: Int): List<T> =
+        buildList {
+            padWithDefaultElement(paddingLength = abs(width() - newRowIndex - 1))
+
+            var first = true
+            for (y in 0..<height()) {
+                for (x in 0..<width()) {
+                    if (isOnDiagonal(x, y, newRowIndex)) {
+                        if (!first) add(defaultValue) else first = false
+                        add(get(Coord(y, x)))
+                    }
+                }
+            }
+
+            padWithDefaultElement(paddingLength = abs(width() - newRowIndex - 1))
+        }
+
+    private fun isOnDiagonal(x: Int, y: Int, newRowIndex: Int) = x + y == newRowIndex
+
+    private fun MutableList<T>.padWithDefaultElement(paddingLength: Int) {
+        repeat(paddingLength) {
+            add(defaultValue)
+        }
     }
 
     override fun toString() =
