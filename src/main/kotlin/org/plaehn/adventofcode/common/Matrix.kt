@@ -10,6 +10,13 @@ data class Matrix<T>(
 
     operator fun get(coord: Coord) = this[coord.y][coord.x]
 
+    fun getOrDefaultValue(coord: Coord) =
+        try {
+            this[coord.y][coord.x]
+        } catch (exx: IndexOutOfBoundsException) {
+            defaultValue
+        }
+
     operator fun set(coord: Coord, value: T) {
         this[coord.y][coord.x] = value
     }

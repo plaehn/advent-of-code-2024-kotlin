@@ -1,12 +1,15 @@
 package org.plaehn.adventofcode
 
+import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
 
 class Day04(
-    private val lines: List<String>
+    lines: List<String>
 ) {
+
+    private val matrix = Matrix.fromRows(lines.map { it.toCharArray().toList() }, '.')
+
     fun solvePart1(): Int {
-        val matrix = Matrix.fromRows(lines.map { it.toCharArray().toList() }, '.')
 
         val candidateStrings = buildList {
             addAll(matrix.collectRows())
@@ -36,8 +39,30 @@ class Day04(
             column.filter { it != '.' }.joinToString("")
         }
 
-    fun solvePart2() =
-        0
+    fun solvePart2(): Int =
+        matrix
+            .toMap()
+            .filter { (coord, element) -> isXmas(element, coord) }
+            .count()
+
+    private fun isXmas(element: Char, coord: Coord) =
+        element == 'A'
+            && topLeft2BottomRightDiagonal(coord) == setOf('M', 'S')
+            && bottomLeft2TopRightDiagonal(coord) == setOf('M', 'S')
+
+    private fun topLeft2BottomRightDiagonal(coord: Coord) =
+        setOf(
+            coord.neighbor(offset = Coord(-1, -1)),
+            coord.neighbor(offset = Coord(1, 1))
+        )
+
+    private fun bottomLeft2TopRightDiagonal(coord: Coord) =
+        setOf(
+            coord.neighbor(offset = Coord(-1, 1)),
+            coord.neighbor(offset = Coord(1, -1))
+        )
+
+    private fun Coord.neighbor(offset: Coord) = matrix.getOrDefaultValue(this + offset)
 
     companion object {
         private val XMAS_REGEX = "XMAS".toRegex()

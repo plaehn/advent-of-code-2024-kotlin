@@ -9,7 +9,7 @@ class Day04Test {
 
     @Test
     fun `Part 1 Test Input`() {
-        val lines = this::class.java.readLines("04_test_simple.txt")
+        val lines = this::class.java.readLines("04_test.txt")
 
         assertThat(Day04(lines).solvePart1()).isEqualTo(18)
     }
@@ -21,17 +21,17 @@ class Day04Test {
         assertThat(Day04(lines).solvePart1()).isEqualTo(2718)
     }
 
-    //  @Test
+    @Test
     fun `Part 2 Test Input`() {
         val lines = this::class.java.readLines("04_test.txt")
 
-        assertThat(Day04(lines).solvePart2()).isEqualTo(-1)
+        assertThat(Day04(lines).solvePart2()).isEqualTo(9)
     }
 
-    //    @Test
+    @Test
     fun `Part 2 Puzzle Input`() {
         val lines = this::class.java.readLines("04.txt")
 
-        assertThat(Day04(lines).solvePart2()).isEqualTo(-1)
+        assertThat(Day04(lines).solvePart2()).isEqualTo(2046)
     }
 }
