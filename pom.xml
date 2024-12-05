@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.plaehn</groupId>
-    <artifactId>advent-of-code-2023-kotlin</artifactId>
+    <artifactId>advent-of-code-2024-kotlin</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
