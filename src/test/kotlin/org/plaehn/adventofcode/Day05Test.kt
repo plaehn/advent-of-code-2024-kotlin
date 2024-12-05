@@ -25,13 +25,13 @@ class Day05Test {
     fun `Part 2 Test Input`() {
         val input = this::class.java.slurp("05_test.txt")
 
-        assertThat(Day05(input).solvePart2()).isEqualTo(-1)
+        assertThat(Day05(input).solvePart2()).isEqualTo(123)
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
         val input = this::class.java.slurp("05.txt")
 
-        assertThat(Day05(input).solvePart2()).isEqualTo(-1)
+        assertThat(Day05(input).solvePart2()).isEqualTo(5346)
     }
 }
