@@ -12,23 +12,45 @@ class Day06(
     private val lines: List<String>
 ) {
 
-    fun solvePart1(): Int {
-        val matrix = Matrix.fromRows(lines.map { it.toCharArray().toList() }, ' ')
+    private val matrix = createMatrix()
+    private val guardStartingPosition = findGuardPosition(matrix)
 
-        var guardPosition = findGuardPosition(matrix)
+    private fun createMatrix() = Matrix.fromRows(lines.map { it.toCharArray().toList() }, ' ')
+
+    fun solvePart1(): Int =
+        findGuardPositions(guardStartingPosition, matrix)
+            .visited
+            .distinctBy { it.position }
+            .size
+
+    private fun findGuardPositions(
+        guardStartingPosition: Coord,
+        matrix: Matrix<Char>,
+        throwOnLoop: Boolean = false
+    ): GuardPositions {
+        var guardPosition = guardStartingPosition
         var guardDirection = UP
-        val visitedPositions = mutableSetOf<Coord>()
+        val guardPositions = GuardPositions()
+
+        guardPositions.visited.add(GuardPositionAndDirection(guardPosition, guardDirection))
 
         while (true) {
-            visitedPositions.add(guardPosition)
             val inFront = matrix.getOrDefaultValue(guardPosition + guardDirection)
             when (inFront) {
-                '.', '^' -> guardPosition += guardDirection
+                '.', '^' -> {
+                    guardPosition += guardDirection
+                    guardPositions.potentialObstructionPlaces.add(guardPosition)
+                    val isNew = guardPositions.visited.add(GuardPositionAndDirection(guardPosition, guardDirection))
+                    if (!isNew && throwOnLoop) {
+                        throw LoopException()
+                    }
+                }
+
                 '#' -> guardDirection = turnRight(guardDirection)
                 ' ' -> break
             }
         }
-        return visitedPositions.size
+        return guardPositions
     }
 
     private fun findGuardPosition(matrix: Matrix<Char>) =
@@ -44,9 +66,30 @@ class Day06(
             else -> UP
         }
 
-    fun solvePart2(): Int {
-        return -1
-    }
+    fun solvePart2(): Int =
+        (findGuardPositions(guardStartingPosition, matrix).potentialObstructionPlaces - guardStartingPosition)
+            .count { potentialObstructionPlace ->
+                val matrix = createMatrix()
+                matrix.set(potentialObstructionPlace, '#')
+                try {
+                    findGuardPositions(guardStartingPosition, matrix, throwOnLoop = true)
+                    false
+                } catch (exx: LoopException) {
+                    true
+                }
+            }
+
+    data class GuardPositions(
+        val visited: MutableSet<GuardPositionAndDirection> = mutableSetOf(),
+        val potentialObstructionPlaces: MutableSet<Coord> = mutableSetOf()
+    )
+
+    data class GuardPositionAndDirection(
+        val position: Coord,
+        val direction: Coord
+    )
+
+    class LoopException : RuntimeException()
 }
 
 
