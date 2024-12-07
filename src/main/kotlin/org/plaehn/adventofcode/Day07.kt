@@ -1,31 +1,30 @@
 package org.plaehn.adventofcode
 
 class Day07(
-    private val equations: List<Equation>
+    private val equations: List<Equation>,
+    private val useConcat: Boolean
 ) {
 
-    fun solvePart1(): Long =
-        equations.sumOf { equation -> equation.solve() }
-
-    fun solvePart2(): Long =
-        equations.sumOf { equation -> equation.solve() }
+    fun solve(): Long =
+        equations.sumOf { equation -> equation.solve(useConcat) }
 
     data class Equation(
         val testValue: Long,
         val operands: List<Long>
     ) {
-        fun solve(): Long =
-            compute(operands.first(), operands.drop(1))
+        fun solve(useConcat: Boolean): Long =
+            compute(operands.first(), operands.drop(1), useConcat)
 
-        private fun compute(result: Long, remainingOperands: List<Long>): Long {
+        private fun compute(result: Long, remainingOperands: List<Long>, useConcat: Boolean): Long {
             if (remainingOperands.isEmpty()) return if (result == testValue) testValue else 0
             if (result >= testValue) return result
 
             val next = remainingOperands.first()
 
-            return when (testValue) {
-                compute(result + next, remainingOperands.drop(1)) -> testValue
-                compute(result * next, remainingOperands.drop(1)) -> testValue
+            return when {
+                testValue == compute(result + next, remainingOperands.drop(1), useConcat) -> testValue
+                testValue == compute(result * next, remainingOperands.drop(1), useConcat) -> testValue
+                useConcat && testValue == compute(result concat next, remainingOperands.drop(1), useConcat) -> testValue
                 else -> 0
             }
         }
@@ -42,10 +41,13 @@ class Day07(
     }
 
     companion object {
-        fun fromInput(lines: List<String>) =
-            Day07(lines.map { Equation.fromInput(it) })
+        fun fromInput(lines: List<String>, useConcat: Boolean = false) =
+            Day07(lines.map { Equation.fromInput(it) }, useConcat)
     }
 }
+
+private infix fun Long.concat(next: Long) =
+    (this.toString() + next.toString()).toLong()
 
 
 
