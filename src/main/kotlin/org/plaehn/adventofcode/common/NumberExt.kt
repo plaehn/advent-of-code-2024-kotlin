@@ -1,8 +1,18 @@
 package org.plaehn.adventofcode.common
 
 
-infix fun Long.concat(next: Long) =
-    (this.toString() + next.toString()).toLong()
+infix fun Long.concat(next: Long): Long =
+    shiftThisLeft(next) + next
+
+private fun Long.shiftThisLeft(next: Long): Long {
+    var first = this
+    var tmp = next
+    while (tmp > 0) {
+        tmp /= 10
+        first *= 10
+    }
+    return first
+}
 
 fun Iterable<Int>.product(): Int = reduce(Int::times)
 
