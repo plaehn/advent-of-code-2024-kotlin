@@ -1,6 +1,9 @@
 package org.plaehn.adventofcode.common
 
 
+infix fun Long.concat(next: Long) =
+    (this.toString() + next.toString()).toLong()
+
 fun Iterable<Int>.product(): Int = reduce(Int::times)
 
 fun Iterable<Long>.product(): Long = reduce(Long::times)

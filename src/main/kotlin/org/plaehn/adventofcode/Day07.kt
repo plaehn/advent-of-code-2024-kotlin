@@ -1,5 +1,7 @@
 package org.plaehn.adventofcode
 
+import org.plaehn.adventofcode.common.concat
+
 class Day07(
     private val equations: List<Equation>,
     private val useConcat: Boolean
@@ -15,19 +17,15 @@ class Day07(
         fun solve(useConcat: Boolean): Long =
             compute(operands.first(), operands.drop(1), useConcat)
 
-        private fun compute(result: Long, remainingOperands: List<Long>, useConcat: Boolean): Long {
-            if (remainingOperands.isEmpty()) return if (result == testValue) testValue else 0
-            if (result >= testValue) return result
-
-            val next = remainingOperands.first()
-
-            return when {
-                testValue == compute(result + next, remainingOperands.drop(1), useConcat) -> testValue
-                testValue == compute(result * next, remainingOperands.drop(1), useConcat) -> testValue
-                useConcat && testValue == compute(result concat next, remainingOperands.drop(1), useConcat) -> testValue
-                else -> 0
-            }
-        }
+        private fun compute(result: Long, operands: List<Long>, useConcat: Boolean): Long =
+            if (operands.isEmpty() || result >= testValue)
+                result
+            else
+                listOf(Long::plus, Long::times, Long::concat)
+                    .filter { useConcat || it != Long::concat }
+                    .map { operation -> compute(operation(result, operands.first()), operands.drop(1), useConcat) }
+                    .find { it == testValue }
+                    ?: 0
 
         companion object {
             fun fromInput(input: String): Equation {
@@ -45,10 +43,3 @@ class Day07(
             Day07(lines.map { Equation.fromInput(it) }, useConcat)
     }
 }
-
-private infix fun Long.concat(next: Long) =
-    (this.toString() + next.toString()).toLong()
-
-
-
-
