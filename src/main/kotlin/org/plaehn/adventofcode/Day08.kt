@@ -6,10 +6,12 @@ import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
 import org.plaehn.adventofcode.common.combinations
 
+class Day08(
+    private val antennaMap: Matrix<Char>,
+    private val useResonantHarmonics: Boolean
+) {
 
-class Day08(private val antennaMap: Matrix<Char>) {
-
-    fun solvePart1(): Int =
+    fun solve(): Int =
         buildSet {
             findAntennaPositions()
                 .forEach { positions ->
@@ -32,8 +34,16 @@ class Day08(private val antennaMap: Matrix<Char>) {
             this@computeAntinodes.toSet().combinations(ofSize = 2).forEach { pair ->
                 val distance = pair.first() - pair.last()
                 pair.forEach { position ->
-                    addIfAntinode(position + distance, pair)
-                    addIfAntinode(position - distance, pair)
+                    if (useResonantHarmonics) add(position)
+                    listOf(Coord::plus, Coord::minus).forEach { op ->
+                        var newPosition = position
+                        while (true) {
+                            newPosition = op(newPosition, distance)
+                            addIfAntinode(newPosition, pair)
+                            if (!newPosition.isOnTheMap()) break
+                            if (!useResonantHarmonics) break
+                        }
+                    }
                 }
             }
         }
@@ -47,13 +57,12 @@ class Day08(private val antennaMap: Matrix<Char>) {
     private fun Coord.isOnTheMap() =
         this.x in 0..<antennaMap.width() && this.y in 0..<antennaMap.height()
 
-    fun solvePart2(): Int {
-        return -1
-    }
-
     companion object {
-        fun fromInput(lines: List<String>) =
-            Day08(Matrix.fromRows(lines.map { it.toCharArray().toList() }, '.'))
+        fun fromInput(lines: List<String>, useResonantHarmonics: Boolean = false) =
+            Day08(
+                Matrix.fromRows(lines.map { it.toCharArray().toList() }, '.'),
+                useResonantHarmonics
+            )
     }
 }
 
