@@ -12,47 +12,51 @@ class Day08(
 ) {
 
     fun solve(): Int =
+        findAllAntinodes().size
+
+    private fun findAllAntinodes(): Set<Coord> =
         buildSet {
             findAntennaPositions()
                 .forEach { positions ->
-                    addAll(positions.computeAntinodes())
+                    addAll(positions.enumerateAllPairs().computeAntinodes())
                 }
-        }.size
+        }
 
     private fun findAntennaPositions(): Collection<Collection<Coord>> {
         val antennaPositions: Multimap<Char, Coord> = ArrayListMultimap.create()
-        antennaMap.toMap().forEach { (position, ch) ->
-            if (ch != '.') {
+        antennaMap.toMap()
+            .filter { it.value != '.' }
+            .forEach { (position, ch) ->
                 antennaPositions.put(ch, position)
             }
-        }
         return antennaPositions.asMap().values
     }
 
-    private fun Collection<Coord>.computeAntinodes(): Set<Coord> =
+    private fun Collection<Coord>.enumerateAllPairs() =
+        toSet().combinations(ofSize = 2)
+
+    private fun Collection<Collection<Coord>>.computeAntinodes() =
+        flatMap { pair ->
+            pair.flatMap { position ->
+                position
+                    .enumerateAntinodes(distance = pair.first() - pair.last())
+                    .filter { useResonantHarmonics || it !in pair }
+            }
+        }.toSet()
+
+    private fun Coord.enumerateAntinodes(distance: Coord) =
         buildSet {
-            this@computeAntinodes.toSet().combinations(ofSize = 2).forEach { pair ->
-                val distance = pair.first() - pair.last()
-                pair.forEach { position ->
-                    if (useResonantHarmonics) add(position)
-                    listOf(Coord::plus, Coord::minus).forEach { op ->
-                        var newPosition = position
-                        while (true) {
-                            newPosition = op(newPosition, distance)
-                            addIfAntinode(newPosition, pair)
-                            if (!newPosition.isOnTheMap()) break
-                            if (!useResonantHarmonics) break
-                        }
-                    }
+            if (useResonantHarmonics) this.add(this@enumerateAntinodes)
+            listOf(Coord::plus, Coord::minus).forEach { operation ->
+                var newPosition = this@enumerateAntinodes
+                while (true) {
+                    newPosition = operation(newPosition, distance)
+                    if (!newPosition.isOnTheMap()) break
+                    add(newPosition)
+                    if (!useResonantHarmonics) break
                 }
             }
         }
-
-    private fun MutableSet<Coord>.addIfAntinode(candidate: Coord, pair: Set<Coord>) {
-        if (candidate.isOnTheMap() && candidate !in pair) {
-            add(candidate)
-        }
-    }
 
     private fun Coord.isOnTheMap() =
         this.x in 0..<antennaMap.width() && this.y in 0..<antennaMap.height()
