@@ -1,5 +1,10 @@
 package org.plaehn.adventofcode.common
 
+import com.google.common.collect.Sets
+
+
+fun <E> Set<E>.combinations(ofSize: Int): Set<Set<E>> = Sets.combinations(this, ofSize)
+
 fun <T> List<List<T>>.transpose(): List<List<T>> =
     (this[0].indices).map { i -> (this.indices).map { j -> this[j][i] } }
 
