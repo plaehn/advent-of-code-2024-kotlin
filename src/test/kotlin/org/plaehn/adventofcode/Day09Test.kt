@@ -39,6 +39,6 @@ class Day09Test {
     fun `Part 2 Puzzle Input`() {
         val input = this::class.java.slurp("09.txt")
 
-        assertThat(Day09(input).solvePart2()).isEqualTo(-1)
+        assertThat(Day09(input).solvePart2()).isEqualTo(6323761685944)
     }
 }
