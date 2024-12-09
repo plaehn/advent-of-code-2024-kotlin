@@ -6,38 +6,37 @@ class Day09(
 
     fun solvePart1(): Long =
         diskMap
-            .toBlocks()
-            .compact()
+            .toFileOrFreeSpace()
+            .compactByMovingBlocks()
             .computeCheckSum()
 
-    private fun String.toBlocks(): List<Int> {
+    private fun String.toFileOrFreeSpace(): List<FileOrFreeSpace> {
         var fileId = 0
-        val blocks: List<Int> = mapIndexed { idx, ch ->
+        val blocks = mapIndexed { idx, ch ->
+            val blockLength = ch.digitToInt()
             if (idx % 2 == 0) {
-                val file: List<Int> = List(ch.digitToInt()) { fileId }
-                ++fileId
-                file
+                File(id = fileId++, length = blockLength)
             } else {
-                List(ch.digitToInt()) { -1 }
+                FreeSpace(length = blockLength)
             }
-        }.flatten()
-        println("blocks")
-        println(blocks)
-        println()
+        }
         return blocks
     }
 
-    private fun List<Int>.compact(): List<Int> {
+    private fun List<FileOrFreeSpace>.compactByMovingBlocks(): List<FileOrFreeSpace> {
         val compacted = buildList {
-            val deque = this@compact.toDeque()
-            this@compact.indices.forEach { idx ->
+            val blocks = this@compactByMovingBlocks.map { it.toBlocks() }.flatten()
+            val deque = blocks.toDeque()
+            blocks.indices.forEach { idx ->
                 when {
-                    deque.isEmpty() -> add(-1)
-                    this@compact[idx] >= 0 -> add(deque.removeFirst())
+                    deque.isEmpty() -> add(FreeSpace(length = 1))
+
+                    blocks[idx] is File -> add(deque.removeFirst())
+
                     else -> {
                         while (deque.isNotEmpty()) {
                             val last = deque.removeLast()
-                            if (last >= 0) {
+                            if (last is File) {
                                 add(last)
                                 break
                             }
@@ -47,24 +46,43 @@ class Day09(
                 }
             }
         }
-        println("compacted")
-        println(compacted)
-        println()
+
         return compacted
     }
 
-    private fun List<Int>.toDeque(): ArrayDeque<Int> =
-        ArrayDeque<Int>().apply { addAll(this@toDeque.toList()) }
+    private fun List<FileOrFreeSpace>.toDeque(): ArrayDeque<FileOrFreeSpace> =
+        ArrayDeque<FileOrFreeSpace>().apply { addAll(this@toDeque.toList()) }
 
-    private fun List<Int>.computeCheckSum(): Long =
-        this.filter { it >= 0 }
-            .mapIndexed { idx, fileId ->
-                (idx * fileId).toLong()
+    private fun List<FileOrFreeSpace>.computeCheckSum(): Long =
+        this.filterIsInstance<File>()
+            .mapIndexed { idx, file ->
+                idx * file.id.toLong()
             }
             .sum()
 
     fun solvePart2(): Int {
         return 0
+    }
+
+    sealed interface FileOrFreeSpace {
+        fun toBlocks(): List<FileOrFreeSpace>
+
+        val length: Int
+    }
+
+    data class File(
+        val id: Int,
+        override val length: Int
+    ) : FileOrFreeSpace {
+        override fun toBlocks(): List<FileOrFreeSpace> =
+            List(length) { File(id, 1) }
+    }
+
+    data class FreeSpace(
+        override val length: Int
+    ) : FileOrFreeSpace {
+        override fun toBlocks(): List<FreeSpace> =
+            List(length) { FreeSpace(1) }
     }
 }
 

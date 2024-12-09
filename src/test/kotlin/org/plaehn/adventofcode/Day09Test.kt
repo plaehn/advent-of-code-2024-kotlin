@@ -32,7 +32,7 @@ class Day09Test {
     fun `Part 2 Test Input`() {
         val input = this::class.java.slurp("09_test.txt")
 
-        assertThat(Day09(input).solvePart2()).isEqualTo(-1)
+        assertThat(Day09(input).solvePart2()).isEqualTo(2858)
     }
 
     @Test
