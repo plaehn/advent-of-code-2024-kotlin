@@ -4,19 +4,20 @@ import com.google.common.graph.ValueGraphBuilder
 import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
 import org.plaehn.adventofcode.common.findAllPaths
-import org.plaehn.adventofcode.common.shortestPaths
 
-class Day10(
-    lines: List<String>
-) {
+class Day10(lines: List<String>) {
 
     private val matrix = Matrix.fromRows(lines.map { it.toCharArray().map { digit -> digit.digitToInt() } }, -1)
 
     fun solvePart1(): Int {
         val graph = buildTrailGraph()
         val trailHeads = graph.nodes().filter { it.height == 0 }
+        val destinations = graph.nodes().filter { it.height == 9 }
+
         return trailHeads.sumOf { trailHead ->
-            val trails = graph.shortestPaths(trailHead) { it.height == 9 }
+            val trails = destinations.flatMap { destination ->
+                graph.findAllPaths(trailHead, destination)
+            }
             val distinctDestinations = trails.map { it.last().coord }.toSet()
             distinctDestinations.size
         }
