@@ -3,6 +3,7 @@ package org.plaehn.adventofcode
 import com.google.common.graph.ValueGraphBuilder
 import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
+import org.plaehn.adventofcode.common.findAllPaths
 import org.plaehn.adventofcode.common.shortestPaths
 
 class Day10(
@@ -45,7 +46,15 @@ class Day10(
             .filter { neighbor -> matrix[neighbor] - matrix[coord] == 1 }
 
     fun solvePart2(): Int {
-        return 0
+        val graph = buildTrailGraph()
+        val trailHeads = graph.nodes().filter { it.height == 0 }
+        val destinations = graph.nodes().filter { it.height == 9 }
+        return trailHeads.sumOf { trailHead ->
+            val trails = destinations.flatMap { destination ->
+                graph.findAllPaths(trailHead, destination)
+            }
+            trails.size
+        }
     }
 
     data class Node(

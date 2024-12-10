@@ -4,7 +4,7 @@ import com.google.common.collect.Sets
 
 data class Coord(val x: Int, val y: Int, val z: Int = 0) {
 
-    override fun toString() = "($x,$y,$z)"
+    override fun toString() = "($x,$y)"
 
     operator fun plus(summand: Coord) = Coord(x + summand.x, y + summand.y, z + summand.z)
 
