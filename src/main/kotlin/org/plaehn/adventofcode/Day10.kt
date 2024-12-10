@@ -8,19 +8,27 @@ import org.plaehn.adventofcode.common.findAllPaths
 class Day10(lines: List<String>) {
 
     private val matrix = Matrix.fromRows(lines.map { it.toCharArray().map { digit -> digit.digitToInt() } }, -1)
+    private val graph = buildTrailGraph()
+    private val trailHeads = graph.nodes().filter { it.height == 0 }
+    private val destinations = graph.nodes().filter { it.height == 9 }
 
-    fun solvePart1(): Int {
-        val graph = buildTrailGraph()
-        val trailHeads = graph.nodes().filter { it.height == 0 }
-        val destinations = graph.nodes().filter { it.height == 9 }
-
-        return trailHeads.sumOf { trailHead ->
-            val trails = destinations.flatMap { destination ->
-                graph.findAllPaths(trailHead, destination)
-            }
+    fun solvePart1(): Int =
+        trailHeads.sumOf { trailHead ->
+            val trails = findAllTrailsStartingAt(trailHead)
             val distinctDestinations = trails.map { it.last().coord }.toSet()
             distinctDestinations.size
         }
+
+    fun solvePart2(): Int =
+        trailHeads.sumOf { trailHead ->
+            findAllTrailsStartingAt(trailHead).size
+        }
+
+    private fun findAllTrailsStartingAt(trailHead: Node): List<List<Node>> {
+        val trails = destinations.flatMap { destination ->
+            graph.findAllPaths(trailHead, destination)
+        }
+        return trails
     }
 
     private fun buildTrailGraph() =
@@ -45,18 +53,6 @@ class Day10(lines: List<String>) {
         matrix
             .neighbors(coord)
             .filter { neighbor -> matrix[neighbor] - matrix[coord] == 1 }
-
-    fun solvePart2(): Int {
-        val graph = buildTrailGraph()
-        val trailHeads = graph.nodes().filter { it.height == 0 }
-        val destinations = graph.nodes().filter { it.height == 9 }
-        return trailHeads.sumOf { trailHead ->
-            val trails = destinations.flatMap { destination ->
-                graph.findAllPaths(trailHead, destination)
-            }
-            trails.size
-        }
-    }
 
     data class Node(
         val coord: Coord,
