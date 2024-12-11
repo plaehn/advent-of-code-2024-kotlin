@@ -4,9 +4,11 @@ import org.plaehn.adventofcode.common.tokenize
 
 class Day11(private val input: String) {
 
-    fun solvePart1(): Int {
+    fun solve(numberOfBlinks: Int): Int {
         var stones = input.tokenize().map { it.toLong() }
-        repeat(25) {
+        var iteration = 0
+        repeat(numberOfBlinks) {
+            println(++iteration)
             stones = blink(stones)
         }
         return stones.size
