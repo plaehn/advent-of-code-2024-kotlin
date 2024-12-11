@@ -18,7 +18,7 @@ private fun <N : Any> ValueGraph<N, Int>.dfs(
     allPaths: MutableList<List<N>>
 ) {
     visited.add(start)
-    currentPath.addLast(start)
+    currentPath.add(start)
 
     if (start == end) {
         allPaths.add(currentPath.toList())
