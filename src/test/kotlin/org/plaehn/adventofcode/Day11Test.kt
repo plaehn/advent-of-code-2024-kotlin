@@ -18,12 +18,12 @@ class Day11Test {
 
     @Test
     fun `Part 2 Test Input`() {
-        assertThat(Day11(TEST_INPUT).solve(75)).isEqualTo(-1)
+        assertThat(Day11(TEST_INPUT).solve(75)).isEqualTo(65601038650482)
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
-        assertThat(Day11(PUZZLE_INPUT).solve(75)).isEqualTo(-1)
+        assertThat(Day11(PUZZLE_INPUT).solve(75)).isEqualTo(259112729857522)
     }
 
     companion object {
