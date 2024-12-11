@@ -5,30 +5,37 @@ import org.plaehn.adventofcode.common.tokenize
 class Day11(input: String) {
 
     private val stones = input.tokenize().map { it.toLong() }
-    private val seen: MutableMap<Pair<Int, Long>, Long> = mutableMapOf()
+    private val state2Count: MutableMap<State, Long> = mutableMapOf()
 
     fun solve(numberOfBlinks: Int): Long =
         stones.sumOf { stone ->
-            countStones(numberOfBlinks, stone)
+            countStones(State(numberOfBlinks, stone))
         }
 
-    private fun countStones(blinks: Int, stone: Long): Long {
-        if (blinks == 0) return 1
-        if (seen.containsKey(blinks to stone)) return seen.getValue(blinks to stone)
+    private fun countStones(state: State): Long {
+        if (state.remainingBlinks == 0) return 1
+        if (state2Count.containsKey(state)) return state2Count.getValue(state)
 
-        val stoneAsString = stone.toString()
+        val stoneAsString = state.stone.toString()
         val stoneLength = stoneAsString.length
-        val remainingBlinks = blinks - 1
         val count = when {
-            stone == 0L -> countStones(remainingBlinks, 1L)
+            state.stone == 0L -> countStones(state.nextState(1L))
 
             stoneLength % 2 == 0 ->
-                countStones(remainingBlinks, stoneAsString.take(stoneLength / 2).toLong()) +
-                        countStones(remainingBlinks, stoneAsString.takeLast(stoneLength / 2).toLong())
+                countStones(state.nextState(stoneAsString.take(stoneLength / 2).toLong())) +
+                        countStones(state.nextState(stoneAsString.takeLast(stoneLength / 2).toLong()))
 
-            else -> countStones(remainingBlinks, stone * 2024)
+            else -> countStones(state.nextState(state.stone * 2024))
         }
-        seen[blinks to stone] = count
+        state2Count[state] = count
         return count
+    }
+
+    data class State(
+        val remainingBlinks: Int,
+        val stone: Long
+    ) {
+        fun nextState(stone: Long) =
+            State(remainingBlinks - 1, stone)
     }
 }
