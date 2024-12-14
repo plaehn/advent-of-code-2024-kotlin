@@ -21,12 +21,14 @@ class Day12Test {
 
     @Test
     fun `Part 2 Test Input`() {
-        assertThat(Day12(linesFrom("12_test.txt")).solvePart2()).isEqualTo(-1)
+        assertThat(Day12(linesFrom("12_test_1.txt")).solvePart2()).isEqualTo(80)
+        assertThat(Day12(linesFrom("12_test_2.txt")).solvePart2()).isEqualTo(436)
+        assertThat(Day12(linesFrom("12_test_3.txt")).solvePart2()).isEqualTo(1206)
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
-        assertThat(Day12(linesFrom("12.txt")).solvePart2()).isEqualTo(-1)
+        assertThat(Day12(linesFrom("12.txt")).solvePart2()).isEqualTo(849332)
     }
 
     private fun linesFrom(resource: String) = this::class.java.readLines(resource)
