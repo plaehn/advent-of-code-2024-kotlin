@@ -41,8 +41,35 @@ class Day14(
     }
 
     fun solvePart2(): Int {
-        TODO()
+        (0..10000).foldIndexed(this.robots) { idx, robots, _ ->
+            if (robots.isPotentialXmas()) {
+                robots.visualize(idx)
+                return idx
+            }
+            robots.map { it.move(width, height) }
+        }
+        throw IllegalStateException()
     }
+
+    private fun List<Robot>.isPotentialXmas() =
+        this.distinctBy { it.position }.size == this.size
+
+    private fun List<Robot>.visualize(idx: Int) {
+        println("Seconds: $idx")
+        println()
+        val position2RobotCount: Map<Coord, Int> = this.groupBy { it.position }.mapValues { (_, value) -> value.size }
+        (0..<width).forEach { x ->
+            (0..<height).forEach { y ->
+                val cnt = position2RobotCount.getOrDefault(Coord(x, y), 0)
+                val chr = if (cnt == 0) ' ' else '*'
+                print("$chr")
+            }
+            println()
+        }
+        println()
+        println()
+    }
+
 
     companion object {
         fun fromInput(input: List<String>, width: Int, height: Int) =
@@ -72,6 +99,8 @@ class Day14(
         }
     }
 }
+
+
 
 
 
