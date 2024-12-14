@@ -12,6 +12,10 @@ data class Coord(val x: Int, val y: Int, val z: Int = 0) {
 
     operator fun times(factor: Coord): Coord = Coord(x * factor.x, y * factor.y, z * factor.z)
 
+    operator fun times(factor: Int): Coord = Coord(x * factor, y * factor, z * factor)
+
+    operator fun rem(coord: Coord): Coord = Coord(x % coord.x, y % coord.y)
+
     fun neighbors(includeDiagonals: Boolean = false, dimensions: Int = 2) =
         neighborOffsets(includeDiagonals, dimensions)
             .map { this + it }
