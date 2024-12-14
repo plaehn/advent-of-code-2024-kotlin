@@ -1,7 +1,5 @@
 package org.plaehn.adventofcode
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.Multimap
 import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.product
 
@@ -11,67 +9,35 @@ class Day14(
     private val height: Int
 ) {
 
-    fun solvePart1(): Int {
+    fun solvePart1(): Int =
+        moveRobots(seconds = 100)
+            .map { it.position }
+            .toRobotsPerQuadrant()
+            .product()
 
-        val finalPositions: List<Coord> = robots.map { robot ->
-            var position = robot.position
-            repeat(100) {
-                //println(position)
-                position += robot.velocity
-                val x = if (position.x >= 0) position.x else width + position.x
-                val y = if (position.y >= 0) position.y else height + position.y
-                position = Coord(x, y) % Coord(width, height)
-            }
-            //println(position)
-            position
+    private fun moveRobots(seconds: Int) =
+        (1..seconds).fold(this.robots) { robots, _ ->
+            robots.map { it.move(width, height) }
         }
 
-        // println(finalPositions.sortedWith(compareBy({ it.x }, { it.y })))
-
-        val quadrants: List<Pair<Coord, Coord>> =
-            finalPositions.mapNotNull { finalPosition ->
-                val x = when {
-                    finalPosition.x < width / 2 -> 0
-                    finalPosition.x > width / 2 -> 1
-                    else -> null
-                }
-                val y = when {
-                    finalPosition.y < height / 2 -> 0
-                    finalPosition.y > height / 2 -> 1
-                    else -> null
-                }
-                if (x == null || y == null) {
-                    null
-                } else {
-                    Coord(x, y) to finalPosition
-                }
-            }
-        val quads: Multimap<Coord, Coord> = ArrayListMultimap.create()
-        quadrants.forEach { q ->
-            quads.put(q.first, q.second)
-        }
-        return quads.asMap().values.map { it.size }.product()
-    }
-
-    fun solvePart1_failed(): Int {
-        val finalPositions = robots.map { robot ->
-            val finalPos = (robot.position + robot.velocity * 100) % (Coord(width, height))
-            val x = if (finalPos.x >= 0) finalPos.x else width + finalPos.x
-            val y = if (finalPos.y >= 0) finalPos.y else height + finalPos.y
-            val corrected = Coord(x, y)
-            println(corrected)
-            corrected
-        }
-
-        println(finalPositions)
-
-        val quadrants: List<Coord> =
-            finalPositions.map { finalPosition ->
-                Coord(width / (1 + finalPosition.x), height / (1 + finalPosition.y))
-            }
-        return quadrants
+    private fun List<Coord>.toRobotsPerQuadrant(): List<Int> =
+        mapNotNull { position -> position.toQuadrant() }
             .groupBy { it }
-            .values.size
+            .map { it.value.size }
+
+    private fun Coord.toQuadrant(): Coord? {
+        return Coord(
+            when {
+                x < width / 2 -> 0
+                x > width / 2 -> 1
+                else -> return null
+            },
+            when {
+                y < height / 2 -> 0
+                y > height / 2 -> 1
+                else -> return null
+            }
+        )
     }
 
     fun solvePart2(): Int {
@@ -87,6 +53,14 @@ class Day14(
         val position: Coord,
         val velocity: Coord
     ) {
+
+        fun move(width: Int, height: Int): Robot {
+            val position = position + velocity
+            val x = if (position.x >= 0) position.x else width + position.x
+            val y = if (position.y >= 0) position.y else height + position.y
+            return Robot(position = Coord(x, y) % Coord(width, height), velocity)
+        }
+
         companion object {
             fun fromInput(input: String): Robot {
                 val coords = input.toNumbers().zipWithNext { x, y -> Coord(x, y) }
