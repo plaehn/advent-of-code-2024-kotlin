@@ -14,7 +14,7 @@ class Day13Test {
 
     @Test
     fun `Part 1 Puzzle Input`() {
-        assertThat(Day13.fromInput(slurp("13.txt")).solvePart1()).isEqualTo(-1)
+        assertThat(Day13.fromInput(slurp("13.txt")).solvePart1()).isEqualTo(36838)
     }
 
     @Test

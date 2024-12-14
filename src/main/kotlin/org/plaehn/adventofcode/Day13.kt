@@ -5,10 +5,8 @@ import org.plaehn.adventofcode.common.chunkByBlankLines
 
 class Day13(private val clawMachines: List<ClawMachine>) {
 
-    fun solvePart1(): Int {
-        println(clawMachines)
-        return 0
-    }
+    fun solvePart1(): Int =
+        clawMachines.sumOf { clawMachine -> clawMachine.minimumNumberOfTokensToWin() }
 
     fun solvePart2(): Int {
         return 0
@@ -28,6 +26,20 @@ class Day13(private val clawMachines: List<ClawMachine>) {
         val buttonBOffset: Coord,
         val prize: Coord
     ) {
+        fun minimumNumberOfTokensToWin(): Int =
+            sequence {
+                (0..100).forEach { a ->
+                    (0..100).forEach { b ->
+                        if (a * buttonAOffset.x + b * buttonBOffset.x == prize.x && a * buttonAOffset.y + b * buttonBOffset.y == prize.y) {
+                            yield(a to b)
+                        }
+                    }
+                }
+            }
+                .map { (a, b) -> a * 3 + b }
+                .sorted()
+                .firstOrNull() ?: 0
+
         companion object {
             fun fromInput(lines: List<String>): ClawMachine {
                 require(lines.size == 3)
