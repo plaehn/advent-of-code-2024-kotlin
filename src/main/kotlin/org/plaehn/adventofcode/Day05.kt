@@ -13,7 +13,6 @@ class Day05(input: String) {
         val (rules, updates) = input.chunkByBlankLines()
         this.rules = rules
         this.updates = updates
-            .filter { it.isNotBlank() }
             .map { update -> update.split(",").map { it.toInt() } }
         this.pageComparator = createPageComparator(rules)
     }
