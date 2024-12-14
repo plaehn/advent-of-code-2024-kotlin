@@ -1,16 +1,17 @@
 package org.plaehn.adventofcode
 
-import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.chunkByBlankLines
 
 class Day13(private val clawMachines: List<ClawMachine>) {
 
-    fun solvePart1(): Int =
-        clawMachines.sumOf { clawMachine -> clawMachine.minimumNumberOfTokensToWin() }
+    fun solvePart1(): Long =
+        clawMachines
+            .sumOf { clawMachine -> clawMachine.minimumNumberOfTokensToWin() }
 
-    fun solvePart2(): Int {
-        return 0
-    }
+    fun solvePart2(): Long =
+        clawMachines
+            .map { ClawMachine(it.a, it.b, it.p.first + 10000000000000 to it.p.second + 10000000000000) }
+            .sumOf { clawMachine -> clawMachine.minimumNumberOfTokensToWin() }
 
     companion object {
         fun fromInput(input: String) =
@@ -22,41 +23,43 @@ class Day13(private val clawMachines: List<ClawMachine>) {
     }
 
     data class ClawMachine(
-        val buttonAOffset: Coord,
-        val buttonBOffset: Coord,
-        val prize: Coord
+        val a: Pair<Long, Long>,
+        val b: Pair<Long, Long>,
+        val p: Pair<Long, Long>
     ) {
-        fun minimumNumberOfTokensToWin(): Int =
-            sequence {
-                (0..100).forEach { a ->
-                    (0..100).forEach { b ->
-                        if (a * buttonAOffset.x + b * buttonBOffset.x == prize.x && a * buttonAOffset.y + b * buttonBOffset.y == prize.y) {
-                            yield(a to b)
-                        }
-                    }
-                }
+        fun minimumNumberOfTokensToWin(): Long {
+            // apply Cramer's rule, cf. https://en.wikipedia.org/wiki/Cramer%27s_rule
+            val divisor = a.first * b.second - a.second * b.first
+            val buttonAPresses = (p.first * b.second - p.second * b.first) / divisor
+            val buttonBPresses = (a.first * p.second - a.second * p.first) / divisor
+
+            return if (
+                a.first * buttonAPresses + b.first * buttonBPresses == p.first &&
+                a.second * buttonAPresses + b.second * buttonBPresses == p.second
+            ) {
+                buttonAPresses * 3L + buttonBPresses
+            } else {
+                0
             }
-                .map { (a, b) -> a * 3 + b }
-                .sorted()
-                .firstOrNull() ?: 0
+        }
 
         companion object {
             fun fromInput(lines: List<String>): ClawMachine {
                 require(lines.size == 3)
-                val coords = lines.map { line ->
+                val pairs = lines.map { line ->
                     val numbers = line.toNumbers()
                     require(numbers.size == 2)
-                    Coord(numbers.first(), numbers.last())
+                    numbers.first() to numbers.last()
                 }
                 return ClawMachine(
-                    buttonAOffset = coords[0],
-                    buttonBOffset = coords[1],
-                    prize = coords[2]
+                    a = pairs[0],
+                    b = pairs[1],
+                    p = pairs[2]
                 )
             }
 
-            private fun String.toNumbers(): List<Int> =
-                "\\d+".toRegex().findAll(this).map { it.value.toInt() }.toList()
+            private fun String.toNumbers(): List<Long> =
+                "\\d+".toRegex().findAll(this).map { it.value.toLong() }.toList()
         }
     }
 }

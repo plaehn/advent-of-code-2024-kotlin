@@ -19,12 +19,12 @@ class Day13Test {
 
     @Test
     fun `Part 2 Test Input`() {
-        assertThat(Day13.fromInput(slurp("13_test.txt")).solvePart2()).isEqualTo(-1)
+        assertThat(Day13.fromInput(slurp("13_test.txt")).solvePart2()).isEqualTo(875318608908)
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
-        assertThat(Day13.fromInput(slurp("13.txt")).solvePart2()).isEqualTo(-1)
+        assertThat(Day13.fromInput(slurp("13.txt")).solvePart2()).isEqualTo(83029436920891)
     }
 
     private fun slurp(resource: String) = this::class.java.slurp(resource)
