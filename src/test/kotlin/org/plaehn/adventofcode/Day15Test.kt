@@ -20,12 +20,14 @@ class Day15Test {
 
     @Test
     fun `Part 2 Test Input`() {
-        assertThat(Day15.fromInput(slurp("15_test_2.txt")).solvePart2()).isEqualTo(-1)
+        assertThat(Day15.fromInput(slurp("15_test_1.txt"), widen = true).solvePart2()).isEqualTo(1751)
+        assertThat(Day15.fromInput(slurp("15_test_3.txt"), widen = true).solvePart2()).isEqualTo(618)
+        assertThat(Day15.fromInput(slurp("15_test_2.txt"), widen = true).solvePart2()).isEqualTo(9021)
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
-        assertThat(Day15.fromInput(slurp("15.txt")).solvePart2()).isEqualTo(-1)
+        assertThat(Day15.fromInput(slurp("15.txt"), widen = true).solvePart2()).isEqualTo(1452348)
     }
 
     private fun slurp(resource: String) = this::class.java.slurp(resource)

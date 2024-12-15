@@ -1,5 +1,7 @@
 package org.plaehn.adventofcode
 
+import org.plaehn.adventofcode.Day15.Move.LEFT
+import org.plaehn.adventofcode.Day15.Move.RIGHT
 import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
 import org.plaehn.adventofcode.common.chunkByBlankLines
@@ -9,76 +11,96 @@ class Day15(
     private val moves: List<Move>
 ) {
 
-    fun solvePart1(): Int {
-        var robot = findRobot()
-        moves.forEach { move ->
-//            println(warehouse)
-//            println()
-//            println(move)
-//            println()
-            robot = moveRobot(robot, move)
-        }
-        return warehouse.toMap().map { (coord, elem) ->
-            if (elem == 'O') {
-                coord.y * 100 + coord.x
-            } else {
-                0
-            }
-        }.sum()
-    }
+    fun solvePart1(): Int =
+        warehouse
+            .doMovements()
+            .findAll('O')
+            .sumOf { coord -> coord.y * 100 + coord.x }
 
-    private fun findRobot() =
-        warehouse.toMap().filter { (_, chr) ->
-            chr == '@'
-        }.keys.first()
 
-    private fun moveRobot(robot: Coord, move: Move): Coord {
-        val newPosition = robot + move.offset
-        return when (warehouse[newPosition]) {
-            '#' -> robot
+    fun solvePart2(): Int =
+        warehouse
+            .doMovements()
+            .findAll('[')
+            .sumOf { coord -> coord.y * 100 + coord.x }
 
-            '.' -> {
-                warehouse.swap(robot, newPosition)
-                newPosition
-            }
-
-            'O' -> {
-                var firstWallOrEmpty = newPosition
-                while (warehouse[firstWallOrEmpty] == 'O') {
-                    firstWallOrEmpty += move.offset
-                }
-                when (warehouse[firstWallOrEmpty]) {
-                    '.' -> {
-                        while (firstWallOrEmpty != robot) {
-                            warehouse.swap(firstWallOrEmpty, firstWallOrEmpty - move.offset)
-                            firstWallOrEmpty -= move.offset
+    private fun Matrix<Char>.doMovements(): Matrix<Char> {
+        val start = findAll('@').first()
+        var place = start
+        moves.forEach { direction ->
+            val next = place + direction.offset
+            when (this[next]) {
+                in BOX_CHARS -> {
+                    push(next, direction)?.let { moves ->
+                        moves.forEach { (from, to) ->
+                            this[to] = this[from]
+                            this[from] = '.'
                         }
-                        newPosition
+                        place = next
                     }
+                }
 
-                    '#' -> robot
-                    else -> throw IllegalStateException()
+                !in "#" -> {
+                    place = next
                 }
             }
-
-            else -> throw IllegalStateException()
         }
+        return this
     }
 
-    private fun Matrix<Char>.swap(first: Coord, second: Coord) {
-        val tmp = this[first]
-        this[first] = this[second]
-        this[second] = tmp
+    private fun Matrix<Char>.push(position: Coord, move: Move): List<Pair<Coord, Coord>>? {
+        val safePushes = mutableListOf<Pair<Coord, Coord>>()
+        val queue = mutableListOf(position)
+        val seen = mutableSetOf<Coord>()
+
+        while (queue.isNotEmpty()) {
+            val thisPosition = queue.removeFirst()
+            if (thisPosition !in seen) {
+                seen += thisPosition
+                if (!move.isHorizontally()) {
+                    when (this[thisPosition]) {
+                        ']' -> queue.add(thisPosition + LEFT.offset)
+                        '[' -> queue.add(thisPosition + RIGHT.offset)
+                    }
+                }
+                val nextPosition = thisPosition + move.offset
+                when (this[nextPosition]) {
+                    '#' -> return null
+                    in BOX_CHARS -> queue.add(nextPosition)
+                }
+                safePushes.add(thisPosition to nextPosition)
+            }
+        }
+        return safePushes.reversed()
     }
 
-    fun solvePart2(): Int {
-        return 0
-    }
+    private fun Matrix<Char>.findAll(target: Char): Set<Coord> =
+        toMap().filter { (_, chr) ->
+            chr == target
+        }.keys
 
     companion object {
-        fun fromInput(input: String): Day15 {
+
+        private val BOX_CHARS = setOf('O', '[', ']')
+
+        fun fromInput(input: String, widen: Boolean = false): Day15 {
             val chunks = input.chunkByBlankLines()
-            val matrix = Matrix.fromRows(chunks.first().map { it.toCharArray().toList() }, '.')
+            val matrixRows = chunks.first()
+                .map { it.toCharArray().toList() }
+                .map { row ->
+                    row.flatMap { chr ->
+                        when {
+                            !widen -> listOf(chr)
+                            chr == '#' -> listOf('#', '#')
+                            chr == 'O' -> listOf('[', ']')
+                            chr == '.' -> listOf('.', '.')
+                            chr == '@' -> listOf('@', '.')
+                            else -> throw IllegalArgumentException("Unknown warehouse char $chr")
+                        }
+                    }
+                }
+
+            val matrix = Matrix.fromRows(matrixRows, '.')
             val moves = chunks.last()
                 .joinToString("")
                 .filterNot { it == '\n' }
@@ -92,6 +114,8 @@ class Day15(
         DOWN(Coord(0, 1), 'v'),
         LEFT(Coord(-1, 0), '<'),
         RIGHT(Coord(1, 0), '>');
+
+        fun isHorizontally() = this == LEFT || this == RIGHT
 
         companion object {
             fun fromInput(input: Char): Move =
