@@ -12,19 +12,21 @@ class Day16(
     private val labyrinth: Matrix<Char>
 ) {
 
-    fun solvePart1(): Long =
-        findBestPathsWithCost().first().second
+    fun solvePart1(paths: List<Pair<List<Node>, Long>>): Long =
+        paths.first().second
 
-    fun solvePart2(): Int {
-        return 0
-    }
+    fun solvePart2(paths: List<Pair<List<Node>, Long>>): Int =
+        paths
+            .flatMap { it.first }
+            .map { it.position }
+            .toSet().size
 
-    private fun findBestPathsWithCost(): List<Pair<List<Node>, Long>> {
+    fun findBestPathsWithCost(): List<Pair<List<Node>, Long>> {
         val graph = buildGraph()
         val startNode = Node(labyrinth.find('S'), EAST)
         val endPosition = labyrinth.find('E')
         val shortestPathsWithCost = graph
-            .shortestPaths(startNode) { it.position == endPosition }
+            .shortestPaths(startNode, keepAllPrevious = true) { it.position == endPosition }
             .map { path -> path to graph.computeCost(path) }
         val minimalCost = shortestPathsWithCost.minOfOrNull { it.second }
         return shortestPathsWithCost.filter { it.second == minimalCost }
