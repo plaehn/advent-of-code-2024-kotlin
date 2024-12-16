@@ -3,7 +3,7 @@ package org.plaehn.adventofcode
 import com.google.common.graph.ValueGraphBuilder
 import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
-import org.plaehn.adventofcode.common.findAllPaths
+import org.plaehn.adventofcode.common.ValueGraphDfsExt.findAllPaths
 
 class Day10(lines: List<String>) {
 
