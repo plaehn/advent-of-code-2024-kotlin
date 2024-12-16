@@ -86,8 +86,7 @@ class Day16(
         val position: Coord,
         val direction: Direction
     )
-
-    // TODO offset needed?
+    
     enum class Direction(val offset: Coord) {
         NORTH(Coord(0, -1)),
         EAST(Coord(1, 0)),
