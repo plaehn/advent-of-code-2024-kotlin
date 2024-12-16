@@ -4,38 +4,40 @@ import com.google.common.graph.ValueGraph
 import com.google.common.graph.ValueGraphBuilder
 import org.plaehn.adventofcode.Day16.Direction.*
 import org.plaehn.adventofcode.common.Coord
-import org.plaehn.adventofcode.common.DijkstraWithPriorityQueue
 import org.plaehn.adventofcode.common.Matrix
+import org.plaehn.adventofcode.common.ValueGraphDijkstraExt.findShortestPath
 
 @Suppress("UnstableApiUsage")
 class Day16(
     private val labyrinth: Matrix<Char>
 ) {
 
-    fun solvePart1(paths: List<Pair<List<Node>, Long>>): Long =
-        paths.first().second
+    fun solvePart1(): Long =
+        findBestPathsWithCost().first().second
 
-    fun solvePart2(paths: List<Pair<List<Node>, Long>>): Int =
-        paths
+    fun solvePart2(): Int =
+        findBestPathsWithCost()
             .flatMap { it.first }
             .map { it.position }
             .toSet().size
 
-    fun findBestPathsWithCost(): List<Pair<List<Node>, Long>> {
+    private fun findBestPathsWithCost(): List<Pair<List<Node>, Long>> {
         val graph = buildGraph()
         val startNode = Node(labyrinth.find('S'), EAST)
         val endPosition = labyrinth.find('E')
-        val paths = Direction.entries.map {
-            DijkstraWithPriorityQueue.findShortestPath(graph, startNode, Node(endPosition, it)) ?: emptyList()
-        }
-        val shortestPathsWithCost = paths
-            .map { path -> path to graph.computeCost(path) }
+        val paths = Direction.entries.flatMap { direction ->
+            val paths = graph.findShortestPath(startNode, Node(endPosition, direction)).toMutableList()
+            paths.map { mutableListOf(startNode) + it } // TODO this should not be here
+        }.filter { it.last().position == endPosition } // TODO this should not be here
+
+        val shortestPathsWithCost = paths.map { path -> path to graph.computeCost(path) }
         val minimalCost = shortestPathsWithCost.minOfOrNull { it.second }
         return shortestPathsWithCost.filter { it.second == minimalCost }
     }
 
     private fun ValueGraph<Node, Int>.computeCost(path: List<Node>): Long =
-        path.zipWithNext { current, next -> edgeValue(current, next).get().toLong() }.sum()
+        path.zipWithNext { current, next -> edgeValue(current, next).get().toLong() }
+            .sum()
 
     private fun Matrix<Char>.find(target: Char): Coord =
         toMap().filter { (_, chr) -> chr == target }.keys.first()

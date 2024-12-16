@@ -1,78 +1,93 @@
 package org.plaehn.adventofcode.common
 
 import com.google.common.graph.ValueGraph
+import java.util.*
 
-
+// Cf. https://www.happycoders.eu/algorithms/dijkstras-algorithm-java
 @Suppress("UnstableApiUsage")
 object ValueGraphDijkstraExt {
 
-    fun <N : Any> ValueGraph<N, Int>.shortestPath(
-        start: N,
-        end: N,
+    fun <N : Any> ValueGraph<N, Int>.findShortestPath(
+        source: N,
+        target: N,
         keepAllPrevious: Boolean = false
-    ): List<N> =
-        shortestPaths(start, keepAllPrevious) { it == end }.first()
-
-    fun <N : Any> ValueGraph<N, Int>.shortestPaths(
-        start: N,
-        keepAllPrevious: Boolean = false,
-        endNodePredicate: (N) -> Boolean
     ): List<List<N>> {
-        val shortestPathTree: Map<N, List<N>?> = computeShortestPathTree(start, keepAllPrevious)
+        val nodeWrappers: MutableMap<N, NodeWrapper<N>> = HashMap()
+        val queue = PriorityQueue<NodeWrapper<N>>()
+        val shortestPathFound: MutableSet<N> = HashSet()
 
-        fun pathsTo(start: N, end: N): List<List<N>> {
-            if (shortestPathTree[end] == null) return listOf(listOf(end))
+        // Add source to queue
+        val sourceWrapper = NodeWrapper(source, 0, emptySet())
+        nodeWrappers[source] = sourceWrapper
+        queue.add(sourceWrapper)
 
-            val previous: List<N> = shortestPathTree[end]!!
-            return previous.map { prev ->
-                val pathsFromStartToPrev = pathsTo(start, prev)
-                pathsFromStartToPrev.map { path ->
-                    path.toMutableList() + mutableListOf(end)
+        while (!queue.isEmpty()) {
+            val nodeWrapper = queue.poll()
+            val node = nodeWrapper.node
+            shortestPathFound.add(node)
 
-                }
-            }.flatten()
-        }
-
-        return nodes()
-            .filter(endNodePredicate)
-            .flatMap { pathsTo(start, it) }
-            .filter { it.first() == start }
-    }
-
-    // Cf. https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
-    private fun <N : Any> ValueGraph<N, Int>.computeShortestPathTree(
-        start: N,
-        keepAllPrevious: Boolean
-    ): Map<N, List<N>?> {
-        val visited: MutableSet<N> = mutableSetOf()
-
-        val delta = nodes().associateWith { Int.MAX_VALUE }.toMutableMap()
-        delta[start] = 0
-
-        val previous: MutableMap<N, MutableList<N>?> = nodes().associateWith { null }.toMutableMap()
-
-        while (visited != nodes()) {
-            val node = delta
-                .filter { !visited.contains(it.key) }
-                .minByOrNull { it.value }!!
-                .key
-
-            successors(node).minus(visited).forEach { neighbor ->
-                val newPath = delta.getValue(node) + edgeValue(node, neighbor!!).get()
-
-                if (newPath < delta.getValue(neighbor) || (keepAllPrevious && newPath == delta.getValue(neighbor))) {
-                    delta[neighbor] = newPath
-                    if (previous[neighbor] != null && keepAllPrevious) {
-                        previous[neighbor] = (previous[neighbor]!! + mutableListOf(node)).toMutableList()
-                    } else {
-                        previous[neighbor] = mutableListOf(node)
-                    }
-                }
+            // Have we reached the target? --> Build and return the path
+            if (node == target) {
+                return buildPaths(nodeWrapper).reversed()
             }
 
-            visited.add(node)
+            // Iterate over all neighbors
+            val neighbors = successors(node)
+            for (neighbor in neighbors) {
+                // Ignore neighbor if shortest path already found
+                if (shortestPathFound.contains(neighbor)) {
+                    continue
+                }
+
+                // Calculate total distance from start to neighbor via current node
+                val distance = edgeValue(node, neighbor).orElseThrow { IllegalStateException() }
+                val totalDistance = nodeWrapper.totalDistance + distance
+
+                // Neighbor not yet discovered?
+                var neighborWrapper: NodeWrapper<N>? = nodeWrappers[neighbor]
+                if (neighborWrapper == null) {
+                    neighborWrapper = NodeWrapper(neighbor, totalDistance, setOf(nodeWrapper))
+                    nodeWrappers[neighbor] = neighborWrapper
+                    queue.add(neighborWrapper)
+                } else if (totalDistance < neighborWrapper.totalDistance || (keepAllPrevious && totalDistance == neighborWrapper.totalDistance)) {
+                    neighborWrapper.totalDistance = totalDistance
+                    neighborWrapper.predecessors += nodeWrapper.predecessors
+
+                    // The position in the PriorityQueue won't change automatically;
+                    // we have to remove and reinsert the node
+                    queue.remove(neighborWrapper)
+                    queue.add(neighborWrapper)
+                }
+            }
         }
 
-        return previous.toMap()
+        // All reachable nodes were visited but the target was not found
+        return emptyList()
     }
+
+    private fun <N : Any> buildPaths(nodeWrapper: NodeWrapper<N>): List<List<N>> =
+        nodeWrapper.predecessors
+            .map { predecessor ->
+                buildPaths(predecessor).toSet().flatMap { it + listOf(predecessor.node) }
+            }
+    //  .map { it + listOf(nodeWrapper.node) }
+}
+
+data class NodeWrapper<N>(
+    val node: N,
+    var totalDistance: Int,
+    var predecessors: Set<NodeWrapper<N>>
+) :
+    Comparable<NodeWrapper<N>> {
+
+    override fun compareTo(other: NodeWrapper<N>): Int =
+        this.totalDistance.compareTo(other.totalDistance)
+
+    // Using identity for equals and hashcode here, which is much faster.
+    // It's sufficient as within the algorithm, we have only one NodeWrapper instance per node.
+    override fun equals(other: Any?) =
+        super.equals(other)
+
+    override fun hashCode() =
+        super.hashCode()
 }
