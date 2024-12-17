@@ -23,16 +23,18 @@ class Day17Test {
 
     @Test
     fun `Part 2 Test Input`() {
-        val day17 = Day17.fromInput(readLines("17_test.txt"))
+        val day17 = Day17.fromInput(readLines("17_test_part2.txt"))
 
-        assertThat(day17.solvePart2()).isEqualTo("")
+        assertThat(day17.solvePart2()).isEqualTo(117440)
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
         val day17 = Day17.fromInput(readLines("17.txt"))
 
-        assertThat(day17.solvePart2()).isEqualTo("")
+        // too low:  2147000000
+        // too high: 298188800000000
+        assertThat(day17.solvePart2()).isEqualTo(-1)
     }
 
     private fun readLines(resource: String) = this::class.java.readLines(resource)

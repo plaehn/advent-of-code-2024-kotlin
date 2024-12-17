@@ -3,7 +3,7 @@ package org.plaehn.adventofcode
 import com.google.common.math.IntMath.pow
 
 class Day17(
-    private val initialRegisterValues: List<Int>,
+    private val initialRegisterValues: List<Long>,
     private val program: List<Int>
 ) {
 
@@ -25,14 +25,37 @@ class Day17(
 
     private fun ComputerState.isHalted() = instructionPointer >= program.size
 
-    fun solvePart2(): String {
-        return ""
+    fun solvePart2(): Long {
+        //var registerAValue = 2147000000 // then got an overflow
+        var registerAValue = 2145386496L
+        while (true) {
+            var state = ComputerState(
+                registerA = registerAValue,
+                registerB = initialRegisterValues[1],
+                registerC = initialRegisterValues[2],
+                instructionPointer = 0,
+                emptyList()
+            )
+            if (registerAValue % 100000000L == 0L) println("registerAValue: $registerAValue")
+            while (!state.isHalted() && state.output.isPrefixOf(program) && state.output != program) {
+                val (opcode, operand) = program.subList(state.instructionPointer, state.instructionPointer + 2)
+                val instruction = Instruction.fromOpcode(opcode)
+                state = instruction.computeNextState(state, instruction, operand)
+                //println(state)
+            }
+            if (state.output == program) break
+            registerAValue += 2097152
+        }
+        return registerAValue
     }
 
+    private fun List<Int>.isPrefixOf(program: List<Int>): Boolean =
+        program.take(this.size) == this
+
     data class ComputerState(
-        val registerA: Int,
-        val registerB: Int,
-        val registerC: Int,
+        val registerA: Long,
+        val registerB: Long,
+        val registerC: Long,
         val instructionPointer: Int,
         val output: List<Int>
     )
@@ -55,25 +78,25 @@ class Day17(
             when (instruction) {
                 ADV ->
                     state.copy(
-                        registerA = state.registerA / pow(2, operand.toComboOperand(state)),
+                        registerA = state.registerA / pow(2, operand.toComboOperand(state).toInt()),
                         instructionPointer = state.instructionPointer + 2
                     )
 
                 BDV ->
                     state.copy(
-                        registerB = state.registerA / pow(2, operand.toComboOperand(state)),
+                        registerB = state.registerA / pow(2, operand.toComboOperand(state).toInt()),
                         instructionPointer = state.instructionPointer + 2
                     )
 
                 CDV ->
                     state.copy(
-                        registerC = state.registerA / pow(2, operand.toComboOperand(state)),
+                        registerC = state.registerA / pow(2, operand.toComboOperand(state).toInt()),
                         instructionPointer = state.instructionPointer + 2
                     )
 
                 BXL ->
                     state.copy(
-                        registerB = state.registerB xor operand,
+                        registerB = state.registerB xor operand.toLong(),
                         instructionPointer = state.instructionPointer + 2
                     )
 
@@ -84,7 +107,7 @@ class Day17(
                     )
 
                 JNZ ->
-                    if (state.registerA == 0) {
+                    if (state.registerA == 0L) {
                         state.copy(
                             instructionPointer = state.instructionPointer + 2
                         )
@@ -102,14 +125,14 @@ class Day17(
 
                 OUT ->
                     state.copy(
-                        output = state.output + listOf(operand.toComboOperand(state) % 8),
+                        output = state.output + listOf(operand.toComboOperand(state) % 8).map { it.toInt() },
                         instructionPointer = state.instructionPointer + 2
                     )
             }
 
-        private fun Int.toComboOperand(state: ComputerState): Int =
+        private fun Int.toComboOperand(state: ComputerState): Long =
             when {
-                this <= 3 -> this
+                this <= 3 -> this.toLong()
                 this == 4 -> state.registerA
                 this == 5 -> state.registerB
                 this == 6 -> state.registerC
@@ -126,7 +149,7 @@ class Day17(
         fun fromInput(input: List<String>): Day17 {
             val numbersPerLine = input.map { it.toNumbers() }
             return Day17(
-                initialRegisterValues = numbersPerLine.take(3).flatten(),
+                initialRegisterValues = numbersPerLine.take(3).flatten().map { it.toLong() },
                 program = numbersPerLine.last()
             )
         }
