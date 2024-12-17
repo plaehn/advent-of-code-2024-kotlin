@@ -27,8 +27,12 @@ class Day16(
         val endPosition = labyrinth.find('E')
         val paths = Direction.entries.flatMap { direction ->
             val paths = graph.findShortestPath(startNode, Node(endPosition, direction)).toMutableList()
-            paths.map { mutableListOf(startNode) + it } // TODO this should not be here
-        }.filter { it.last().position == endPosition } // TODO this should not be here
+//            paths.forEach { path ->
+//                println(path.joinToString("\n"))
+//            }
+//            println()
+            paths // .map { mutableListOf(startNode) + it } // TODO this should not be here
+        } // .filter { it.last().position == endPosition } // TODO this should not be here
 
         val shortestPathsWithCost = paths.map { path -> path to graph.computeCost(path) }
         val minimalCost = shortestPathsWithCost.minOfOrNull { it.second }
@@ -36,8 +40,13 @@ class Day16(
     }
 
     private fun ValueGraph<Node, Int>.computeCost(path: List<Node>): Long =
-        path.zipWithNext { current, next -> edgeValue(current, next).get().toLong() }
-            .sum()
+        path.zipWithNext { current, next ->
+            val edgeValue = edgeValue(current, next)
+            if (!edgeValue.isPresent) {
+                println("Edge value between $current and $next is missing")
+            }
+            edgeValue.get().toLong()
+        }.sum()
 
     private fun Matrix<Char>.find(target: Char): Coord =
         toMap().filter { (_, chr) -> chr == target }.keys.first()

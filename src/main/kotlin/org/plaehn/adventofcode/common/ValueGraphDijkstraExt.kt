@@ -1,7 +1,9 @@
 package org.plaehn.adventofcode.common
 
 import com.google.common.graph.ValueGraph
+import org.checkerframework.checker.units.qual.N
 import java.util.*
+
 
 // Cf. https://www.happycoders.eu/algorithms/dijkstras-algorithm-java
 @Suppress("UnstableApiUsage")
@@ -28,7 +30,7 @@ object ValueGraphDijkstraExt {
 
             // Have we reached the target? --> Build and return the path
             if (node == target) {
-                return buildPaths(nodeWrapper).reversed()
+                return buildPathsSimple(nodeWrapper).map { it.reversed() } // TODO
             }
 
             // Iterate over all neighbors
@@ -65,12 +67,31 @@ object ValueGraphDijkstraExt {
         return emptyList()
     }
 
-    private fun <N : Any> buildPaths(nodeWrapper: NodeWrapper<N>): List<List<N>> =
-        nodeWrapper.predecessors
-            .map { predecessor ->
-                buildPaths(predecessor).toSet().flatMap { it + listOf(predecessor.node) }
-            }
-    //  .map { it + listOf(nodeWrapper.node) }
+    private fun <N : Any> buildPaths(nodeWrapper: NodeWrapper<N>): List<List<N>> {
+        listOf(nodeWrapper.node)
+
+        return if (nodeWrapper.predecessors.isEmpty()) {
+            listOf(listOf(nodeWrapper.node))
+        } else {
+            nodeWrapper.predecessors
+                .flatMap { predecessor ->
+                    buildPaths(predecessor).toSet().map { predecessorPath ->
+                        predecessorPath + listOf(predecessor.node)
+                    }
+                }
+            //.map { it + listOf(nodeWrapper.node) }
+        }
+    }
+
+    private fun <N : Any> buildPathsSimple(nodeWrapper: NodeWrapper<N>): List<List<N>> {
+        var wrapper = nodeWrapper
+        val path = mutableListOf(nodeWrapper.node)
+        while (wrapper.predecessors.isNotEmpty()) {
+            path.add(wrapper.predecessors.first().node)
+            wrapper = wrapper.predecessors.first()
+        }
+        return listOf(path)
+    }
 }
 
 data class NodeWrapper<N>(
