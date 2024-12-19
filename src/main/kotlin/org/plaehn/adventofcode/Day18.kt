@@ -23,15 +23,28 @@ class Day18(
         return path.first().size - 1
     }
 
-    fun solvePart2(): Int {
-        return 0
+    fun solvePart2(): String {
+        val matrix = Matrix.fromDimensions(dimension, dimension, '.')
+        bytes.take(takeFirstNBytes).forEach { byte ->
+            matrix[byte] = '#'
+        }
+        val graph = buildGraph(matrix)
+
+        val remainingBytes = bytes.drop(takeFirstNBytes).toMutableList()
+        while (remainingBytes.isNotEmpty()) {
+            val next = remainingBytes.removeFirst()
+            graph.removeNode(Node(next, '.'))
+            val path = graph.findShortestPath(Node(Coord(0, 0), '.'), Node(Coord(dimension - 1, dimension - 1), '.'))
+            if (path.isEmpty()) return "${next.x},${next.y}"
+        }
+        return ""
     }
 
     private fun buildGraph(matrix: Matrix<Char>) =
         ValueGraphBuilder
             .directed()
             .expectedNodeCount(matrix.width() * matrix.height())
-            .immutable<Node, Int>()
+            .build<Node, Int>()
             .apply {
                 matrix.toMap().forEach { (coord, chr) ->
                     val node = Node(coord, chr)
@@ -43,7 +56,6 @@ class Day18(
                     }
                 }
             }
-            .build()
 
     data class Node(
         val position: Coord,
