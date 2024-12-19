@@ -1,6 +1,7 @@
 package org.plaehn.adventofcode
 
 import org.plaehn.adventofcode.common.chunkByBlankLines
+import org.plaehn.adventofcode.common.toInts
 
 class Day13(private val clawMachines: List<ClawMachine>) {
 
@@ -47,7 +48,7 @@ class Day13(private val clawMachines: List<ClawMachine>) {
             fun fromInput(lines: List<String>): ClawMachine {
                 require(lines.size == 3)
                 val pairs = lines.map { line ->
-                    val numbers = line.toNumbers()
+                    val numbers = line.toInts().map { it.toLong() }
                     require(numbers.size == 2)
                     numbers.first() to numbers.last()
                 }
@@ -57,9 +58,6 @@ class Day13(private val clawMachines: List<ClawMachine>) {
                     p = pairs[2]
                 )
             }
-
-            private fun String.toNumbers(): List<Long> =
-                "\\d+".toRegex().findAll(this).map { it.value.toLong() }.toList()
         }
     }
 }

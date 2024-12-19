@@ -1,6 +1,7 @@
 package org.plaehn.adventofcode
 
 import com.google.common.math.IntMath.pow
+import org.plaehn.adventofcode.common.toInts
 
 class Day17(
     private val initialRegisterValues: List<Long>,
@@ -147,15 +148,12 @@ class Day17(
 
     companion object {
         fun fromInput(input: List<String>): Day17 {
-            val numbersPerLine = input.map { it.toNumbers() }
+            val numbersPerLine = input.map { it.toInts() }
             return Day17(
                 initialRegisterValues = numbersPerLine.take(3).flatten().map { it.toLong() },
                 program = numbersPerLine.last()
             )
         }
-
-        private fun String.toNumbers(): List<Int> =
-            "-?\\d+".toRegex().findAll(this).map { it.value.toInt() }.toList()
     }
 }
 

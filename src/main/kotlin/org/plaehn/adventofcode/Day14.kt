@@ -2,6 +2,7 @@ package org.plaehn.adventofcode
 
 import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.product
+import org.plaehn.adventofcode.common.toInts
 
 class Day14(
     private val robots: List<Robot>,
@@ -90,12 +91,9 @@ class Day14(
 
         companion object {
             fun fromInput(input: String): Robot {
-                val coords = input.toNumbers().zipWithNext { x, y -> Coord(x, y) }
+                val coords = input.toInts().zipWithNext { x, y -> Coord(x, y) }
                 return Robot(coords.first(), coords.last())
             }
-
-            private fun String.toNumbers(): List<Int> =
-                "-?\\d+".toRegex().findAll(this).map { it.value.toInt() }.toList()
         }
     }
 }

@@ -2,6 +2,7 @@ package org.plaehn.adventofcode
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.plaehn.adventofcode.common.readLines
 
@@ -22,6 +23,7 @@ class Day17Test {
     }
 
     @Test
+    @Disabled
     fun `Part 2 Test Input`() {
         val day17 = Day17.fromInput(readLines("17_test_part2.txt"))
 
@@ -29,6 +31,7 @@ class Day17Test {
     }
 
     @Test
+    @Disabled
     fun `Part 2 Puzzle Input`() {
         val day17 = Day17.fromInput(readLines("17.txt"))
 

@@ -104,6 +104,9 @@ data class Matrix<T>(
 
         fun <T> fromRows(rows: List<List<T>>, defaultValue: T) =
             Matrix(rows.map { it.toMutableList() }, defaultValue)
+
+        fun <T> fromDimensions(width: Int, height: Int, defaultValue: T) =
+            Matrix(MutableList(size = height) { MutableList(size = width) { defaultValue } }, defaultValue)
     }
 }
 
