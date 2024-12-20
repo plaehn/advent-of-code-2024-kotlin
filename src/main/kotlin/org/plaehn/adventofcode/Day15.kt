@@ -74,10 +74,6 @@ class Day15(
         return safePushes.reversed()
     }
 
-    private fun Matrix<Char>.findAll(target: Char): Set<Coord> =
-        toMap().filter { (_, chr) ->
-            chr == target
-        }.keys
 
     companion object {
 

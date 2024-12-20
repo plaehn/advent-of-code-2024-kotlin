@@ -45,6 +45,11 @@ data class Matrix<T>(
 
     private fun isInsideBounds(coord: Coord) = coord.y in 0 until height() && coord.x in 0 until width()
 
+    fun findAll(target: T): Set<Coord> =
+        toMap().filter { (_, chr) ->
+            chr == target
+        }.keys
+
     fun width() = matrix.first().size
 
     fun height() = matrix.size
