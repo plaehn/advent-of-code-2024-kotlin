@@ -4,49 +4,33 @@ import org.plaehn.adventofcode.common.Coord
 import org.plaehn.adventofcode.common.Matrix
 
 class Day20(private val matrix: Matrix<Char>) {
+    private val path = findPath()
 
-    fun solvePart1(minimalSaving: Int): Int =
-        findPath()
-            .computeSavings()
-            .count { saving -> saving >= minimalSaving }
+    fun solve(minimalSaving: Int, maxCheatLength: Int): Int =
+        path.indices.sumOf { start ->
+            (start + minimalSaving..path.lastIndex).count { end ->
+                val distance = path[start].manhattanDistanceTo(path[end])
+                distance <= maxCheatLength && distance <= end - start - minimalSaving
+            }
+        }
 
-    private fun findPath(): Map<Coord, Int> {
-        val coord2PathLength = mutableMapOf<Coord, Int>()
-        var currentPathLength = 0
+    private fun findPath(): List<Coord> {
+        val path = mutableListOf<Coord>()
         var current = matrix.findAll('S').first()
         val end = matrix.findAll('E').first()
         while (current != end) {
-            coord2PathLength[current] = currentPathLength++
+            path.add(current)
             val next = matrix
                 .neighbors(current)
                 .firstOrNull { neighbor ->
-                    neighbor !in coord2PathLength && matrix[neighbor] != '#'
+                    neighbor !in path && matrix[neighbor] != '#'
                 } ?: throw IllegalStateException()
             current = next
         }
-        coord2PathLength[end] = currentPathLength
-        return coord2PathLength
+        path.add(end)
+        return path
     }
 
-    private fun Map<Coord, Int>.computeSavings() =
-        flatMap { (coord, length) ->
-            matrix
-                .neighbors(coord)
-                .filter { neighbor -> matrix[neighbor] == '#' }
-                .map { wall ->
-                    val behindWall = coord + ((wall - coord) * 2)
-                    val saving = if (matrix.getOrDefaultValue(behindWall) != '#') {
-                        getOrDefault(behindWall, length) - length - 2
-                    } else {
-                        0
-                    }
-                    saving
-                }
-        }
-
-    fun solvePart2(minimalSaving: Int): Int =
-        0
-    
     companion object {
         fun fromInput(lines: List<String>) =
             Day20(Matrix.fromRows(lines.map { it.toCharArray().toList() }, '.'))

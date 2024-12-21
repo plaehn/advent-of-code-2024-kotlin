@@ -1,6 +1,7 @@
 package org.plaehn.adventofcode.common
 
 import com.google.common.collect.Sets
+import kotlin.math.absoluteValue
 
 data class Coord(val x: Int, val y: Int, val z: Int = 0) {
 
@@ -19,6 +20,9 @@ data class Coord(val x: Int, val y: Int, val z: Int = 0) {
     fun neighbors(includeDiagonals: Boolean = false, dimensions: Int = 2) =
         neighborOffsets(includeDiagonals, dimensions)
             .map { this + it }
+
+    fun manhattanDistanceTo(other: Coord) =
+        (x - other.x).absoluteValue + (y - other.y).absoluteValue + (z - other.z).absoluteValue
 
     private fun neighborOffsets(includeDiagonals: Boolean, dimensions: Int) =
         Sets.cartesianProduct(List(dimensions) { (-1..1).toSet() })
