@@ -35,7 +35,7 @@ class Day20(private val matrix: Matrix<Char>) {
                 .filter { neighbor -> matrix[neighbor] == '#' }
                 .map { wall ->
                     val behindWall = coord + ((wall - coord) * 2)
-                    val saving = if (matrix[behindWall] != '#') {
+                    val saving = if (matrix.getOrDefaultValue(behindWall) != '#') {
                         getOrDefault(behindWall, length) - length - 2
                     } else {
                         0
@@ -44,26 +44,12 @@ class Day20(private val matrix: Matrix<Char>) {
                 }
         }
 
-    fun solvePart2(): Int {
-        return 0
-    }
-
+    fun solvePart2(minimalSaving: Int): Int =
+        0
+    
     companion object {
-        fun fromInput(lines: List<String>): Day20 {
-            return Day20(
-                Matrix.fromRows(
-                    lines
-                        .map { it.toCharArray().toList() }
-                        .addWallToAvoidBoundsChecks(),
-                    '.'
-                )
-            )
-        }
-
-        private fun List<List<Char>>.addWallToAvoidBoundsChecks(): List<List<Char>> {
-            val wallRow: List<List<Char>> = listOf(List(size = first().size + 2) { '#' })
-            return wallRow + map { listOf('#') + it + listOf('#') } + wallRow
-        }
+        fun fromInput(lines: List<String>) =
+            Day20(Matrix.fromRows(lines.map { it.toCharArray().toList() }, '.'))
     }
 }
 
