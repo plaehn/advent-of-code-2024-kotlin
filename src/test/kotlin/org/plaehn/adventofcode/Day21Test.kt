@@ -9,28 +9,28 @@ class Day21Test {
 
     @Test
     fun `Part 1 Test Input`() {
-        val day21 = Day21.fromInput(readLines("21_test.txt"))
+        val day21 = Day21(readLines("21_test.txt"))
 
-        assertThat(day21.solvePart1()).isEqualTo(10)
+        assertThat(day21.solvePart1()).isEqualTo(126384)
     }
 
     @Test
     fun `Part 1 Puzzle Input`() {
-        val day21 = Day21.fromInput(readLines("21.txt"))
+        val day21 = Day21(readLines("21.txt"))
 
         assertThat(day21.solvePart1()).isEqualTo(-1)
     }
 
     @Test
     fun `Part 2 Test Input`() {
-        val day21 = Day21.fromInput(readLines("21_test.txt"))
+        val day21 = Day21(readLines("21_test.txt"))
 
         assertThat(day21.solvePart2()).isEqualTo(-1)
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
-        val day21 = Day21.fromInput(readLines("21.txt"))
+        val day21 = Day21(readLines("21.txt"))
 
         assertThat(day21.solvePart2()).isEqualTo(-1)
     }
