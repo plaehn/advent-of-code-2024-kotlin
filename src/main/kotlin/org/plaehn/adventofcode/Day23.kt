@@ -19,6 +19,10 @@ class Day23(private val connections: List<String>) {
                 .size
         }
 
+    fun solvePart2(): String {
+        return ""
+    }
+
     private fun buildConnectionGraph() =
         GraphBuilder
             .undirected()
@@ -33,8 +37,4 @@ class Day23(private val connections: List<String>) {
                 }
             }
             .build()
-
-    fun solvePart2(): Long {
-        return 0
-    }
 }

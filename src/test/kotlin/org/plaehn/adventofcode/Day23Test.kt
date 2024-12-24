@@ -25,14 +25,14 @@ class Day23Test {
     fun `Part 2 Test Input`() {
         val day23 = Day23(readLines("23_test.txt"))
 
-        assertThat(day23.solvePart2()).isEqualTo(-1)
+        assertThat(day23.solvePart2()).isEqualTo("co,de,ka,ta")
     }
 
     @Test
     fun `Part 2 Puzzle Input`() {
         val day23 = Day23(readLines("23.txt"))
 
-        assertThat(day23.solvePart2()).isEqualTo(-1)
+        assertThat(day23.solvePart2()).isEqualTo("")
     }
 
     private fun readLines(resource: String) = this::class.java.readLines(resource)
