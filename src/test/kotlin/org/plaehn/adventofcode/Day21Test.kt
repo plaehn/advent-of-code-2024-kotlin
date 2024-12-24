@@ -18,7 +18,7 @@ class Day21Test {
     fun `Part 1 Puzzle Input`() {
         val day21 = Day21(readLines("21.txt"))
 
-        assertThat(day21.solve(depth = 2)).isEqualTo(-1)
+        assertThat(day21.solve(depth = 2)).isEqualTo(176870)
     }
 
     @Test
