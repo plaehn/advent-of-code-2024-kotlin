@@ -1,16 +1,20 @@
 package org.plaehn.adventofcode
 
+import java.time.LocalTime
+
 class Day22(private val secretNumbers: List<Long>) {
 
     fun solvePart1(): Long =
         secretNumbers.map { computeSecretNumbers(it) }.sumOf { it.last() }
 
     fun solvePart2(): Int {
+        println("Start: " + LocalTime.now())
         val differenceLists: List<List<Pair<Int, Int>>> =
             secretNumbers
                 .map { computeSecretNumbers(it) }
                 .map { secretNumbers -> secretNumbers.map { (it % 10).toInt() } }
                 .map { secretNumbers -> secretNumbers.zipWithNext { prev, current -> current to (current - prev) } }
+        println("Diffs: " + LocalTime.now())
 
         val quadruple2BananasForAllLists: List<Map<List<Int>, Int>> = differenceLists.map { differenceList ->
             val quadruple2Bananas: MutableMap<List<Int>, Int> = mutableMapOf()
@@ -21,13 +25,26 @@ class Day22(private val secretNumbers: List<Long>) {
                 }
             quadruple2Bananas.toMap()
         }
-        val quadruple2SummedBananas: Map<List<Int>, Int> =
-            quadruple2BananasForAllLists.reduce { prev: Map<List<Int>, Int>, current: Map<List<Int>, Int> ->
-                (prev.keys + current.keys).associateWith { key ->
-                    prev.getOrDefault(key, 0) + current.getOrDefault(key, 0)
+        println("Quads: " + LocalTime.now())
+
+        val allQuadruples = quadruple2BananasForAllLists.flatMap { it.keys }.toSet()
+        println("Keys:  " + LocalTime.now())
+
+        var maxBananas = 0
+        allQuadruples.forEach { quadruple ->
+            var currentBananas = 0
+            quadruple2BananasForAllLists.forEachIndexed { index, quadruple2Bananas ->
+                currentBananas += quadruple2Bananas.getOrDefault(quadruple, 0)
+                if (currentBananas + 9 * (quadruple2BananasForAllLists.size - index - 1) < maxBananas) {
+                    return@forEach
                 }
             }
-        return quadruple2SummedBananas.maxBy { it.value }.value
+            if (currentBananas > maxBananas) {
+                maxBananas = currentBananas
+            }
+        }
+        println("Max:   " + LocalTime.now())
+        return maxBananas
     }
 
     private fun computeSecretNumbers(secret: Long): List<Long> =
