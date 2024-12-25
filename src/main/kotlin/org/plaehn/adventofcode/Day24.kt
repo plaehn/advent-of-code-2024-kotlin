@@ -10,7 +10,14 @@ class Day24(
 
     fun solvePart1(): Long {
         val wire2ValueMap = initialWire2ValueMap.toMutableMap()
-        var gates = initialGates
+        val binary = initialGates.computeBinaryOutput(wire2ValueMap)
+        return binary.toLong(2)
+    }
+
+    private fun List<Gate>.computeBinaryOutput(
+        wire2ValueMap: MutableMap<String, Int>
+    ): String {
+        var gates = this
         while (gates.isNotEmpty()) {
             gates = gates.mapNotNull { gate ->
                 if (gate.lhs in wire2ValueMap && gate.rhs in wire2ValueMap) {
@@ -26,12 +33,70 @@ class Day24(
             .filter { it.startsWith("z") }
             .sortedDescending()
         val binary = keys.map { wire2ValueMap[it] }.joinToString("")
-        return binary.toLong(2)
+        return binary
     }
 
+    fun solvePart2() {
+        val gates = initialGates
+        val wire2ValueMap = initialWire2ValueMap.toMutableMap()
+        wire2ValueMap.forEach { (key, value) ->
+            if (key.startsWith("x")) {
+                wire2ValueMap[key] = 1
+            }
+            if (key.startsWith("y")) {
+                wire2ValueMap[key] = 0
+            }
+        }
 
-    fun solvePart2(): Int {
-        return 0
+        val binary = gates.computeBinaryOutput(wire2ValueMap)
+        println(binary)
+
+        outputGraph(gates)
+    }
+
+    private fun outputGraph(gates: List<Gate>) {
+        val z = gates.filter { it.output.startsWith("z") }.map { it.output }.sorted().joinToString("->")
+        val x = z.replace('z', 'x')
+        val y = z.replace('z', 'y')
+
+        println(
+            """
+                digraph G {
+                    subgraph {
+                       node [style=filled,color=green]
+                        $z
+                    }
+                    subgraph {
+                        node [style=filled,color=gray]
+                        $x
+                    }
+                    subgraph {
+                        node [style=filled,color=gray]
+                        $y
+                    }
+                    subgraph {
+                        node [style=filled,color=pink]
+                        ${
+                gates.filter { gate -> gate.operator.name == "AND" }.joinToString(" ") { gate -> gate.output }
+            }
+                    }
+                    subgraph {
+                        node [style=filled,color=yellow];
+                        ${gates.filter { gate -> gate.operator.name == "OR" }.joinToString(" ") { gate -> gate.output }}
+                    }
+                    subgraph {
+                        node [style=filled,color=lightblue];
+                        ${
+                gates.filter { gate -> gate.operator.name == "XOR" }.joinToString(" ") { gate -> gate.output }
+            }
+                    }
+                """.trimIndent()
+        )
+        gates.forEach { (left, _, right, out) ->
+            println("    $left -> $out")
+            println("    $right -> $out")
+        }
+        println("}")
     }
 
     data class Gate(
