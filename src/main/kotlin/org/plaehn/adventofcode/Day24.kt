@@ -39,7 +39,7 @@ class Day24(
     fun solvePart2() {
         val gates = initialGates
         val wire2ValueMap = initialWire2ValueMap.toMutableMap()
-        wire2ValueMap.forEach { (key, value) ->
+        wire2ValueMap.forEach { (key, _) ->
             if (key.startsWith("x")) {
                 wire2ValueMap[key] = 1
             }
@@ -50,6 +50,9 @@ class Day24(
 
         val binary = gates.computeBinaryOutput(wire2ValueMap)
         println(binary)
+
+        val firstZeroBit = binary.reversed().takeWhile { it == '1' }.length
+        println("First 0 at bit " + firstZeroBit)
 
         outputGraph(gates)
     }

@@ -176,7 +176,7 @@ y37 XOR x37 -> dnt
 x31 AND y31 -> hrb
 ptv AND htw -> fgn
 y26 AND x26 -> nsh
-fcm XOR dnt -> vkg
+fcm XOR dnt -> z37
 ksr OR svq -> qfj
 dwr OR ngw -> ctj
 y40 XOR x40 -> htn
@@ -198,7 +198,7 @@ ctj XOR dgv -> z41
 tsp OR sgc -> tpr
 hdm AND pfw -> mmj
 hqr OR hqv -> pjh
-dnt AND fcm -> z37
+dnt AND fcm -> vkg
 qfj AND hvf -> kbb
 ndd AND brm -> kmn
 ncd OR hrn -> ndd
