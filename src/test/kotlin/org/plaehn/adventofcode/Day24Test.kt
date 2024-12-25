@@ -28,6 +28,15 @@ class Day24Test {
 
         // 0111111110000000001000000011111111111111111111
         // bit 20 is wrong
+        // swapped cqr and z20
+
+        // 0111111110000000000111111111111111111111111111
+        // bit 27 is wrong
+        // swapped ncd and nfj
+
+        // 1000000001111111111111111111111111111111111111
+        // bit 36 is wrong
+        // swapped vkg and pgg -> cycle
 
         // all wrong:
         //cqr,msn,ncd,nfj,qkm,qnw,y14,z15
