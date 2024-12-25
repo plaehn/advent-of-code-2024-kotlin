@@ -1,7 +1,7 @@
 package org.plaehn.adventofcode
 
 import com.google.common.graph.GraphBuilder
-import org.plaehn.adventofcode.common.ValueGraphBronKerboschExt.findMaximumCliques
+import org.plaehn.adventofcode.common.ValueGraphBronKerboschExt.findMaximalCliques
 import org.plaehn.adventofcode.common.combinations
 
 class Day23(private val connections: List<String>) {
@@ -22,11 +22,11 @@ class Day23(private val connections: List<String>) {
 
     fun solvePart2(): String =
         buildConnectionGraph().run {
-            findMaximumCliques()
+            findMaximalCliques()
                 .maxByOrNull { it.size }
                 ?.sorted()
                 ?.joinToString(",")
-                ?: throw IllegalStateException("No maximum clique found")
+                ?: throw IllegalStateException("No maximal clique found")
         }
 
     private fun buildConnectionGraph() =

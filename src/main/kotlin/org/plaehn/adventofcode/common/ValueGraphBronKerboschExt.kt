@@ -7,35 +7,35 @@ import com.google.common.graph.Graph
 @Suppress("UnstableApiUsage")
 object ValueGraphBronKerboschExt {
 
-    fun <N : Any> Graph<N>.findMaximumCliques(): Set<Set<N>> =
-        bronKerbosch(
-            mutableSetOf(),
-            nodes().toMutableSet(),
-            mutableSetOf()
-        )
+    fun <N : Any> Graph<N>.findMaximalCliques(): Set<Set<N>> =
+        bronKerbosch(State(candidates = nodes()))
 
-    private fun <N : Any> Graph<N>.bronKerbosch(
-        clique: MutableSet<N>,
-        candidates: MutableSet<N>,
-        notClique: MutableSet<N>
-    ): Set<Set<N>> {
-        if (candidates.isEmpty() && notClique.isEmpty()) {
-            return setOf(clique)
-        }
-        val maximumCliques = mutableSetOf<Set<N>>()
-        val iter = candidates.iterator()
-        iter.forEach { candidate ->
-            val adjacentNodes = adjacentNodes(candidate)
-            maximumCliques.addAll(
-                bronKerbosch(
-                    (clique + setOf(candidate)).toMutableSet(),
-                    (candidates.intersect(adjacentNodes)).toMutableSet(),
-                    (notClique.intersect(adjacentNodes)).toMutableSet()
+    private fun <N : Any> Graph<N>.bronKerbosch(currentState: State<N>): Set<Set<N>> =
+        if (currentState.isMaximalClique()) {
+            setOf(currentState.clique)
+        } else {
+            currentState.candidates.fold(currentState) { state, candidate ->
+                val newMaximalCliques = bronKerbosch(
+                    State(
+                        state.clique + candidate,
+                        state.candidates intersect adjacentNodes(candidate),
+                        state.notClique intersect adjacentNodes(candidate)
+                    )
                 )
-            )
-            iter.remove()
-            notClique.add(candidate)
+                state.copy(
+                    candidates = state.candidates - candidate,
+                    notClique = state.notClique + candidate,
+                    maximalCliques = state.maximalCliques + newMaximalCliques
+                )
+            }.maximalCliques
         }
-        return maximumCliques
+
+    data class State<N : Any>(
+        val clique: Set<N> = setOf(),
+        val candidates: Set<N>,
+        val notClique: Set<N> = setOf(),
+        val maximalCliques: Set<Set<N>> = setOf()
+    ) {
+        fun isMaximalClique() = candidates.isEmpty() && notClique.isEmpty()
     }
 }
