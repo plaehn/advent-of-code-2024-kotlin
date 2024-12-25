@@ -4,14 +4,29 @@ import org.plaehn.adventofcode.common.chunkByBlankLines
 import org.plaehn.adventofcode.common.tokenize
 
 class Day24(
-    private val wire2ValueMap: Map<String, Int>,
-    private val gates: List<Gate>
+    private val initialWire2ValueMap: Map<String, Int>,
+    private val initialGates: List<Gate>
 ) {
 
-    fun solvePart1(): Int {
-        println(wire2ValueMap)
-        println(gates)
-        return 0
+    fun solvePart1(): Long {
+        val wire2ValueMap = initialWire2ValueMap.toMutableMap()
+        var gates = initialGates
+        while (gates.isNotEmpty()) {
+            gates = gates.mapNotNull { gate ->
+                if (gate.lhs in wire2ValueMap && gate.rhs in wire2ValueMap) {
+                    wire2ValueMap[gate.output] = gate.compute(wire2ValueMap[gate.lhs]!!, wire2ValueMap[gate.rhs]!!)
+                    null
+                } else {
+                    gate
+                }
+            }
+        }
+        val keys = wire2ValueMap
+            .keys
+            .filter { it.startsWith("z") }
+            .sortedDescending()
+        val binary = keys.map { wire2ValueMap[it] }.joinToString("")
+        return binary.toLong(2)
     }
 
 
@@ -25,6 +40,13 @@ class Day24(
         val rhs: String,
         val output: String
     ) {
+        fun compute(lhsValue: Int, rhsValue: Int): Int =
+            when (operator) {
+                Operator.AND -> lhsValue and rhsValue
+                Operator.OR -> lhsValue or rhsValue
+                Operator.XOR -> lhsValue xor rhsValue
+            }
+
         companion object {
             fun fromInput(input: String): Gate {
                 val (lhs, operator, rhs, _, result) = input.tokenize()
