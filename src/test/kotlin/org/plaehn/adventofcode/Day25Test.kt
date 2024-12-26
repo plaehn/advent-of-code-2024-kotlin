@@ -18,21 +18,7 @@ class Day25Test {
     fun `Part 1 Puzzle Input`() {
         val day25 = Day25.fromInput(slurp("25.txt"))
 
-        assertThat(day25.solvePart1()).isEqualTo(-1)
-    }
-
-    @Test
-    fun `Part 2 Test Input`() {
-        val day25 = Day25.fromInput(slurp("25_test.txt"))
-
-        assertThat(day25.solvePart2()).isEqualTo(-1)
-    }
-
-    @Test
-    fun `Part 2 Puzzle Input`() {
-        val day25 = Day25.fromInput(slurp("25.txt"))
-
-        assertThat(day25.solvePart2()).isEqualTo(-1)
+        assertThat(day25.solvePart1()).isEqualTo(3451)
     }
 
     private fun slurp(resource: String) = this::class.java.slurp(resource)

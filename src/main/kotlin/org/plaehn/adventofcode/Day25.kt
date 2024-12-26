@@ -5,15 +5,14 @@ import org.plaehn.adventofcode.common.chunkByBlankLines
 
 class Day25(private val locks: List<List<Int>>, private val keys: List<List<Int>>) {
 
-    fun solvePart1(): Int {
-        println(locks)
-        println(keys)
-        return 0
-    }
+    fun solvePart1(): Int =
+        locks.sumOf { lock -> lock.countMatchingKeys() }
 
-    fun solvePart2(): Long {
-        return 0
-    }
+    private fun List<Int>.countMatchingKeys(): Int =
+        keys.count { key -> key.matches(this) }
+
+    private fun List<Int>.matches(key: List<Int>) =
+        zip(key).all { it.first + it.second <= 5 }
 
     companion object {
         fun fromInput(input: String): Day25 {
