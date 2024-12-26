@@ -9,49 +9,50 @@ class Day17(
 ) {
 
     fun solvePart1(): String {
-        var state = ComputerState(
+        val state = ComputerState(
             registerA = initialRegisterValues[0],
             registerB = initialRegisterValues[1],
             registerC = initialRegisterValues[2],
             instructionPointer = 0,
             emptyList()
         )
+        return runToEnd(state).joinToString(",")
+    }
+
+    private fun runToEnd(startState: ComputerState): List<Int> {
+        var state = startState
         while (!state.isHalted()) {
             val (opcode, operand) = program.subList(state.instructionPointer, state.instructionPointer + 2)
             val instruction = Instruction.fromOpcode(opcode)
             state = instruction.computeNextState(state, instruction, operand)
         }
-        return state.output.joinToString(",")
+        return state.output
     }
 
     private fun ComputerState.isHalted() = instructionPointer >= program.size
 
     fun solvePart2(): Long {
-        //var registerAValue = 2147000000 // then got an overflow
-        var registerAValue = 2145386496L
-        while (true) {
-            var state = ComputerState(
-                registerA = registerAValue,
-                registerB = initialRegisterValues[1],
-                registerC = initialRegisterValues[2],
-                instructionPointer = 0,
-                emptyList()
-            )
-            if (registerAValue % 100000000L == 0L) println("registerAValue: $registerAValue")
-            while (!state.isHalted() && state.output.isPrefixOf(program) && state.output != program) {
-                val (opcode, operand) = program.subList(state.instructionPointer, state.instructionPointer + 2)
-                val instruction = Instruction.fromOpcode(opcode)
-                state = instruction.computeNextState(state, instruction, operand)
-                //println(state)
-            }
-            if (state.output == program) break
-            registerAValue += 2097152
-        }
-        return registerAValue
+        val state = ComputerState(
+            registerA = initialRegisterValues[0],
+            registerB = initialRegisterValues[1],
+            registerC = initialRegisterValues[2],
+            instructionPointer = 0,
+            emptyList()
+        )
+        return program
+            .reversed()
+            .map { it.toLong() }
+            .fold(listOf(0L)) { candidates, instruction ->
+                candidates.flatMap { candidate ->
+                    val shifted = candidate shl 3
+                    (shifted..shifted + 8).mapNotNull { attempt ->
+                        state.copy(registerA = attempt).run {
+                            attempt.takeIf { runToEnd(this).first().toLong() == instruction }
+                        }
+                    }
+                }
+            }.first()
     }
-
-    private fun List<Int>.isPrefixOf(program: List<Int>): Boolean =
-        program.take(this.size) == this
 
     data class ComputerState(
         val registerA: Long,

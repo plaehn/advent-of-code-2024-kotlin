@@ -2,7 +2,6 @@ package org.plaehn.adventofcode
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.plaehn.adventofcode.common.readLines
 
@@ -23,7 +22,6 @@ class Day17Test {
     }
 
     @Test
-    @Disabled
     fun `Part 2 Test Input`() {
         val day17 = Day17.fromInput(readLines("17_test_part2.txt"))
 
@@ -31,13 +29,10 @@ class Day17Test {
     }
 
     @Test
-    @Disabled
     fun `Part 2 Puzzle Input`() {
         val day17 = Day17.fromInput(readLines("17.txt"))
 
-        // too low:  2147000000
-        // too high: 298188800000000
-        assertThat(day17.solvePart2()).isEqualTo(-1)
+        assertThat(day17.solvePart2()).isEqualTo(164540892147389)
     }
 
     private fun readLines(resource: String) = this::class.java.readLines(resource)
